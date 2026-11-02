@@ -1,0 +1,250 @@
+{
+  "$schema": "../schemas/manifest.schema.json",
+  "schema": 1,
+
+  "meta": {
+    "id": "naxgc.default.lower-third",
+    "name": "Lower Third Jornal",
+    "version": "0.1.0",
+    "author": "NaxGC",
+    "description": "Template padrão de exemplo: duas linhas de texto com máscara e borda, logo e tag AO VIVO.",
+    "requires": { "naxgc": ">=0.1.0" }
+  },
+
+  "canvas": { "width": 1920, "height": 1080, "fps": 60 },
+  "svg": "layout.svg",
+  "initialState": "offair",
+
+  "fonts": [
+    { "family": "Inter", "file": "fonts/Inter.ttf" }
+  ],
+
+  "layers": {
+    "linha1":       { "type": "svg", "id": "linha1" },
+    "linha1border": { "type": "svg", "id": "linha1border" },
+    "linha1mask":   { "type": "svg", "id": "linha1mask", "role": "mask" },
+    "linha1texto": {
+      "type": "text", "id": "txt_linha1",
+      "text": "", "font": "Inter", "weight": 700, "size": 46, "color": "#ffffff",
+      "align": "left", "valign": "middle", "overflow": "shrink", "minSize": 28,
+      "mask": "linha1mask", "maskMode": "alpha"
+    },
+
+    "linha2":       { "type": "svg", "id": "linha2" },
+    "linha2border": { "type": "svg", "id": "linha2border" },
+    "linha2mask":   { "type": "svg", "id": "linha2mask", "role": "mask" },
+    "linha2texto": {
+      "type": "text", "id": "txt_linha2",
+      "text": "", "font": "Inter", "weight": 500, "size": 30, "color": "#0b2a5b",
+      "align": "left", "valign": "middle", "overflow": "shrink", "minSize": 20,
+      "mask": "linha2mask", "maskMode": "alpha"
+    },
+
+    "logo":           { "type": "svg", "id": "logo", "origin": [0.5, 0.5] },
+    "tag_aovivo":     { "type": "svg", "id": "tag_aovivo" },
+    "tag_aovivo_dot": { "type": "svg", "id": "tag_aovivo_dot", "origin": [0.5, 0.5] },
+    "tag_aovivo_txt": {
+      "type": "text", "id": "txt_aovivo",
+      "text": "AO VIVO", "font": "Inter", "weight": 700, "size": 18, "color": "#ffffff",
+      "align": "center", "valign": "middle", "letterSpacing": 1.5
+    }
+  },
+
+  "states": {
+    "offair": {
+      "layers.linha1.x": -1200,
+      "layers.linha1border.x": -1200,
+      "layers.linha1mask.x": -1200,
+      "layers.linha2.x": -1200,
+      "layers.linha2border.x": -1200,
+      "layers.linha2mask.x": -1200,
+      "layers.logo.scale": 0,
+      "layers.tag_aovivo.opacity": 0,
+      "layers.linha1border.opacity": 0,
+      "layers.linha2border.opacity": 0
+    },
+    "tema_azul": {
+      "layers.linha1.fill": "#0b2a5b",
+      "layers.linha1texto.color": "#ffffff",
+      "layers.linha2.fill": "#ffffff",
+      "layers.linha2texto.color": "#0b2a5b"
+    },
+    "tema_vermelho": {
+      "layers.linha1.fill": "#b00020",
+      "layers.linha1texto.color": "#ffffff",
+      "layers.linha2.fill": "#ffffff",
+      "layers.linha2texto.color": "#b00020"
+    }
+  },
+
+  "panel": {
+    "title": "Lower Third",
+    "sections": [
+      {
+        "title": "Conteúdo",
+        "controls": [
+          { "key": "linha1", "label": "Nome",  "type": "text", "bind": "layers.linha1texto.text", "default": "", "placeholder": "Nome do entrevistado", "maxLength": 80 },
+          { "key": "linha2", "label": "Cargo", "type": "text", "bind": "layers.linha2texto.text", "default": "", "placeholder": "Cargo ou descrição", "maxLength": 100 }
+        ]
+      },
+      {
+        "title": "Aparência",
+        "collapsed": true,
+        "controls": [
+          {
+            "key": "tema", "label": "Tema", "type": "dropdown", "default": "tema_azul",
+            "options": [
+              { "label": "Azul",     "apply": "tema_azul" },
+              { "label": "Vermelho", "apply": "tema_vermelho" }
+            ]
+          },
+          { "key": "cor_borda", "label": "Cor da borda", "type": "color", "default": "#ffd23f",
+            "bind": ["layers.linha1border.stroke", "layers.linha2border.stroke"] },
+          { "key": "aovivo", "label": "Tag AO VIVO", "type": "toggle", "default": true, "bind": "layers.tag_aovivo.visible" }
+        ]
+      },
+      {
+        "title": "Exibição",
+        "controls": [
+          { "type": "button", "label": "▶ Entrar", "action": "show", "style": "primary", "hotkey": "NaxGC: Entrar" },
+          { "type": "button", "label": "■ Sair",   "action": "hide", "hotkey": "NaxGC: Sair" }
+        ]
+      }
+    ]
+  },
+
+  "animations": {
+    "main.in": {
+      "triggers": [
+        { "play": "logo.in",   "at": 0.0 },
+        { "play": "linha1.in", "at": 0.1 }
+      ]
+    },
+
+    "logo.in": {
+      "tracks": [
+        { "layer": "logo", "prop": "scale", "from": 0, "to": 1, "dur": 0.45, "ease": "outBack" },
+        { "layer": "tag_aovivo", "prop": "opacity", "from": 0, "to": 1, "start": 0.3, "dur": 0.25 }
+      ]
+    },
+
+    "linha1.in": {
+      "tracks": [
+        { "layer": "linha1", "prop": "x", "from": -1200, "to": 0, "dur": 0.6, "ease": "outCubic" }
+      ],
+      "triggers": [
+        { "play": "linha1border.in", "at": 0.0,  "mode": "linked" },
+        { "play": "linha1mask.in",   "at": 0.15, "mode": "linked" },
+        { "play": "linha2.in",       "at": 0.2,  "mode": "linked" }
+      ]
+    },
+    "linha1border.in": {
+      "tracks": [
+        { "layer": "linha1border", "prop": "x", "from": -1200, "to": 0, "dur": 0.6, "ease": "outCubic" },
+        { "layer": "linha1border", "prop": "opacity", "keys": [[0, 0], [0.1, 1], [0.5, 1], [0.7, 0]] }
+      ]
+    },
+    "linha1mask.in": {
+      "tracks": [
+        { "layer": "linha1mask", "prop": "x", "from": -1200, "to": 0, "dur": 0.6, "ease": "outCubic" }
+      ]
+    },
+
+    "linha2.in": {
+      "tracks": [
+        { "layer": "linha2", "prop": "x", "from": -1200, "to": 0, "dur": 0.55, "ease": "outCubic" }
+      ],
+      "triggers": [
+        { "play": "linha2border.in", "at": 0.0,  "mode": "linked" },
+        { "play": "linha2mask.in",   "at": 0.15, "mode": "linked" }
+      ]
+    },
+    "linha2border.in": {
+      "tracks": [
+        { "layer": "linha2border", "prop": "x", "from": -1200, "to": 0, "dur": 0.55, "ease": "outCubic" },
+        { "layer": "linha2border", "prop": "opacity", "keys": [[0, 0], [0.1, 1], [0.45, 1], [0.65, 0]] }
+      ]
+    },
+    "linha2mask.in": {
+      "tracks": [
+        { "layer": "linha2mask", "prop": "x", "from": -1200, "to": 0, "dur": 0.55, "ease": "outCubic" }
+      ]
+    },
+
+    "main.out": {
+      "triggers": [
+        { "play": "linha2.out", "at": 0.0 },
+        { "play": "linha1.out", "at": 0.1 },
+        { "play": "logo.out",   "at": 0.2 }
+      ]
+    },
+
+    "linha1.out": {
+      "tracks": [
+        { "layer": "linha1", "prop": "x", "to": -1200, "dur": 0.5, "ease": "inCubic" }
+      ],
+      "triggers": [
+        { "play": "linha1border.out", "at": 0.0, "mode": "linked" },
+        { "play": "linha1mask.out",   "at": 0.0, "mode": "linked" }
+      ]
+    },
+    "linha1border.out": {
+      "tracks": [
+        { "layer": "linha1border", "prop": "x", "to": -1200, "dur": 0.5, "ease": "inCubic" },
+        { "layer": "linha1border", "prop": "opacity", "keys": [[0, 0], [0.05, 1], [0.4, 1], [0.5, 0]] }
+      ]
+    },
+    "linha1mask.out": {
+      "tracks": [
+        { "layer": "linha1mask", "prop": "x", "to": -1200, "dur": 0.4, "ease": "inCubic" }
+      ]
+    },
+
+    "linha2.out": {
+      "tracks": [
+        { "layer": "linha2", "prop": "x", "to": -1200, "dur": 0.45, "ease": "inCubic" }
+      ],
+      "triggers": [
+        { "play": "linha2border.out", "at": 0.0, "mode": "linked" },
+        { "play": "linha2mask.out",   "at": 0.0, "mode": "linked" }
+      ]
+    },
+    "linha2border.out": {
+      "tracks": [
+        { "layer": "linha2border", "prop": "x", "to": -1200, "dur": 0.45, "ease": "inCubic" },
+        { "layer": "linha2border", "prop": "opacity", "keys": [[0, 0], [0.05, 1], [0.35, 1], [0.45, 0]] }
+      ]
+    },
+    "linha2mask.out": {
+      "tracks": [
+        { "layer": "linha2mask", "prop": "x", "to": -1200, "dur": 0.35, "ease": "inCubic" }
+      ]
+    },
+
+    "logo.out": {
+      "tracks": [
+        { "layer": "logo", "prop": "scale", "to": 0, "dur": 0.3, "ease": "inBack" },
+        { "layer": "tag_aovivo", "prop": "opacity", "to": 0, "dur": 0.2 }
+      ]
+    },
+
+    "loop_vivo": {
+      "loop": true,
+      "duration": 2.0,
+      "tracks": [
+        { "layer": "tag_aovivo_dot", "prop": "opacity", "keys": [[0, 1], [1, 0.35], [2, 1]], "ease": "inOutSine" }
+      ]
+    }
+  },
+
+  "actions": {
+    "show": [
+      { "play": "main.in" },
+      { "play": "loop_vivo", "delay": 0.8 }
+    ],
+    "hide": [
+      { "play": "main.out" },
+      { "stop": "loop_vivo", "delay": 0.9 }
+    ]
+  }
+}

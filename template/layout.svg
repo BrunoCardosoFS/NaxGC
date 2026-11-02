@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  NaxGC — Template padrão "Lower Third Jornal" (canvas 1920x1080)
+
+  Convenções (ver docs/guides/svg-conventions.md):
+  - A ordem dos elementos neste arquivo define o z-order (de trás para frente).
+  - Cada `id` declarado em manifest.json > layers vira uma layer.
+  - Elementos de texto NÃO usam <text>: um <rect id="txt_*"> define o quadro (frame)
+    onde o NaxGC renderiza o texto. Esse retângulo não é desenhado.
+  - Layers aninhadas (ex.: tag_aovivo_dot dentro de tag_aovivo) herdam a transformação
+    e a opacidade da layer pai.
+  - Máscaras (role: "mask") ficam no grupo "masks" ao final e nunca são desenhadas.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+
+  <!-- ===== Linha 1 (nome) ===== -->
+  <rect id="linha1" x="260" y="820" width="1100" height="84" fill="#0b2a5b"/>
+  <rect id="txt_linha1" x="292" y="820" width="1036" height="84" fill="none"/>
+  <rect id="linha1border" x="260" y="820" width="1100" height="84" fill="none" stroke="#ffd23f" stroke-width="4"/>
+
+  <!-- ===== Linha 2 (cargo / descrição) ===== -->
+  <rect id="linha2" x="260" y="904" width="900" height="56" fill="#ffffff"/>
+  <rect id="txt_linha2" x="292" y="904" width="836" height="56" fill="none"/>
+  <rect id="linha2border" x="260" y="904" width="900" height="56" fill="none" stroke="#ffd23f" stroke-width="4"/>
+
+  <!-- ===== Logo ===== -->
+  <g id="logo">
+    <rect x="96" y="820" width="148" height="140" fill="#ffd23f"/>
+    <path d="M120 940 V840 L220 940 V840" fill="none" stroke="#0b2a5b" stroke-width="14" stroke-linejoin="miter"/>
+  </g>
+
+  <!-- ===== Tag AO VIVO ===== -->
+  <g id="tag_aovivo">
+    <rect x="96" y="772" width="148" height="36" rx="18" fill="#d00000"/>
+    <circle id="tag_aovivo_dot" cx="120" cy="790" r="7" fill="#ffffff"/>
+    <rect id="txt_aovivo" x="138" y="772" width="98" height="36" fill="none"/>
+  </g>
+
+  <!-- ===== Máscaras (role: mask) — não são desenhadas ===== -->
+  <g id="masks">
+    <rect id="linha1mask" x="260" y="820" width="1100" height="84" fill="#ffffff"/>
+    <rect id="linha2mask" x="260" y="904" width="900" height="56" fill="#ffffff"/>
+  </g>
+
+</svg>

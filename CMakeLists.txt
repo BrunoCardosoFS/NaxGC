@@ -16,7 +16,7 @@ add_library(${CMAKE_PROJECT_NAME} MODULE)
 find_package(libobs REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 
-target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/obs-websocket")
+target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM PRIVATE third_party/obs-websocket)
 
 if(ENABLE_FRONTEND_API)
   find_package(obs-frontend-api REQUIRED)

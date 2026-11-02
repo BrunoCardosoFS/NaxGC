@@ -47,7 +47,7 @@ Toda dependência nova precisa de justificativa (ver [AGENTS.md](../../AGENTS.md
   ```powershell
   cmake --install build_x64 --prefix "C:/ProgramData/obs-studio/plugins" --config RelWithDebInfo
   ```
-  Instala em `%ProgramData%\obs-studio\plugins\naxgc` (`bin\64bit\naxgc.dll` e `data\`).
+  Instala em `%ProgramData%\obs-studio\plugins\naxgc\bin\64bit\naxgc.dll` (ou copie `build_x64\rundir\RelWithDebInfo\naxgc.dll` diretamente para `C:\Program Files\obs-studio\obs-plugins\64bit\`).
 - **Linux/macOS:** pasta de plugins do usuário (`~/.config/obs-studio/plugins/…`; macOS: `~/Library/Application Support/obs-studio/plugins/…`).
 - Reinicie o OBS e confira em **Ajuda → Arquivos de Log → Ver Log Atual** a mensagem `[NaxGC] plugin loaded successfully (version 0.1.0)`.
 

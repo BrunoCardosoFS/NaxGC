@@ -5,7 +5,6 @@
 !/.github
 !/build-aux
 !/cmake
-!/data
 !/docs
 !/schemas
 !/src
@@ -14,6 +13,7 @@
 !/third_party
 !.clang-format
 !.gersemirc
+!.gitattributes
 !.gitignore
 !AGENTS.md
 !buildspec.json

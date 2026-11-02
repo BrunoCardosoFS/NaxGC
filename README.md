@@ -67,9 +67,9 @@ template/          template padrão de exemplo
 
 Quando o código existir: `src/` (core, render, obs, ui, ws), `tests/`, `schemas/` — ver [`AGENTS.md`](AGENTS.md).
 
-## Requisitos (previstos)
+## Requisitos
 
-- OBS Studio com Qt 6 e frontend API (versão mínima a confirmar no marco M0).
+- OBS Studio 30.0+ (Qt 6 e frontend API).
 - obs-websocket 5.x (já incluso no OBS recente) para o controle remoto.
 - Para compilar: CMake, compilador C++17, toolchain da plataforma (ver [`docs/guides/building.md`](docs/guides/building.md)).
 

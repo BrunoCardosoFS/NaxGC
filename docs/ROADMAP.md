@@ -7,10 +7,10 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 
 ## M0 — Fundação
 
-- [ ] Repositório criado a partir do obs-plugintemplate (nome, UUID e metadados no `buildspec.json`)
-- [ ] Qt e frontend API habilitados no CMake
-- [ ] `obs-websocket-api.h` incorporado ao projeto
-- [ ] CI compilando
+- [x] Repositório criado a partir do obs-plugintemplate (nome, UUID e metadados no `buildspec.json`)
+- [x] Qt e frontend API habilitados no CMake
+- [x] `obs-websocket-api.h` incorporado ao projeto
+- [~] CI compilando
 - [x] Definir versão mínima do OBS suportada (OBS 30.0+, somente Qt6)
 
 **Aceite:** plugin "vazio" compila e aparece na lista de módulos do OBS.

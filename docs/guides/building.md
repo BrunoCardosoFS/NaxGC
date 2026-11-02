@@ -43,13 +43,21 @@ Toda dependência nova precisa de justificativa (ver [AGENTS.md](../../AGENTS.md
 
 ## Instalar no OBS para testar
 
-- **Windows:**
-  ```powershell
-  cmake --install build_x64 --prefix "C:/ProgramData/obs-studio/plugins" --config RelWithDebInfo
-  ```
-  Instala em `%ProgramData%\obs-studio\plugins\naxgc\bin\64bit\naxgc.dll` (ou copie `build_x64\rundir\RelWithDebInfo\naxgc.dll` diretamente para `C:\Program Files\obs-studio\obs-plugins\64bit\`).
+- **Windows:** o OBS escaneia dois locais com estruturas diferentes:
+  1. **Pasta global de plugins externos (`%ProgramData%\obs-studio\plugins\`)** — compatível com o `.zip` gerado pelo CI e com `cmake --install`:
+     ```powershell
+     cmake --install build_x64 --prefix "C:/ProgramData/obs-studio/plugins" --config RelWithDebInfo
+     ```
+     Extrai/instala a pasta `naxgc` inteira em `C:\ProgramData\obs-studio\plugins`.
 - **Linux/macOS:** pasta de plugins do usuário (`~/.config/obs-studio/plugins/…`; macOS: `~/Library/Application Support/obs-studio/plugins/…`).
 - Reinicie o OBS e confira em **Ajuda → Arquivos de Log → Ver Log Atual** a mensagem `[NaxGC] plugin loaded successfully (version 0.1.0)`.
+
+## Formatação e `.gitignore` (CI)
+
+- **Formatação obrigatória no CI (`check-format.yaml`):**
+  - Código C/C++ em `src/`: formatado com `clang-format` (`-style=file -fallback-style=none`). Headers de terceiros devem ficar em `third_party/` (fora de `src/` e adicionados com `SYSTEM` em `target_include_directories`).
+  - Arquivos CMake (`CMakeLists.txt`, `cmake/**/*.cmake`): validados pelo `gersemi` (indentação de 2 espaços, máximo de 120 colunas por linha).
+- **`.gitignore` em modo *allowlist*:** o `.gitignore` inicia com `/*` (ignora tudo por padrão). Qualquer nova pasta ou arquivo na raiz do repositório precisa de uma regra `!/nome` explícita no `.gitignore`. Se a pasta `data/` for adicionada ou removida, execute `cmake --preset <preset>` novamente para regenerar os passos de post-build.
 
 ## Problemas comuns
 

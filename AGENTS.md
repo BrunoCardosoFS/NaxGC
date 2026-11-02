@@ -56,7 +56,8 @@ ctest --preset ubuntu-x86_64 --output-on-failure
 ```
 
 - Windows: preset `windows-x64`. macOS: preset `macos`.
-- Antes de abrir PR: formatar (`clang-format`, config herdada do template), compilar sem warnings novos e rodar os testes.
+- Antes de abrir PR: formatar (`clang-format` para `src/` e `gersemi` para `CMakeLists.txt`/`cmake/*.cmake`, limite de 120 colunas e indentação de 2 espaços), compilar sem warnings novos (`/WX` / `-Werror`) e rodar os testes.
+- Headers de terceiros ficam em `third_party/` (fora de `src/` e incluídos com `SYSTEM` no CMake) para não dispararem o `clang-format` nem warnings de compilação.
 - Mudou manifest, clip, easing ou trigger? Adicione/atualize um teste em `tests/` e confira que `template/` ainda valida.
 
 ## Convenções de código
@@ -92,6 +93,9 @@ ctest --preset ubuntu-x86_64 --output-on-failure
 
 ## Armadilhas conhecidas
 
+- **`.gitignore` em modo *allowlist* (`/*`)**: o repositório ignora tudo por padrão na raiz e libera apenas entradas explícitas com `!`. Qualquer nova pasta ou arquivo de topo precisa ser liberado no `.gitignore`, senão o Git o ignora silenciosamente. Se a pasta `data/` for criada ou removida, reconfigure o CMake (`cmake --preset ...`) para atualizar as regras de post-build.
+- **Locale do OBS**: não usar `OBS_MODULE_USE_DEFAULT_LOCALE` enquanto o plugin não possuir arquivos `data/locale/en-US.ini` reais, para não gerar erro de carregamento de locale no log do OBS.
+- **Instalação de plugins no Windows**: o pacote gerado pelo CI (`naxgc/bin/64bit/naxgc.dll`) deve ser extraído em `%ProgramData%\obs-studio\plugins\` (`C:\ProgramData\obs-studio\plugins\naxgc\...`, pasta oculta na raiz do `C:\`).
 - O `x`/`y` de uma layer é **deslocamento em pixels do canvas a partir da posição de repouso do SVG**, não coordenada absoluta.
 - O z-order vem da **ordem dos elementos no SVG**, não da ordem das chaves em `layers`.
 - Uma layer de texto usa um `<rect id="txt_*">` como quadro; o SVG não usa `<text>`.

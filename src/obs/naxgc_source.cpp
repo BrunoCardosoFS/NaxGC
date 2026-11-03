@@ -25,6 +25,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #include <obs-module.h>
 
+#include "core/anim/animator.hpp"
 #include "core/manifest/manifest_validator.hpp"
 #include "render/renderer.hpp"
 
@@ -87,9 +88,17 @@ struct NaxgcSource {
 	std::string last_evaluated_path;
 	std::shared_ptr<const LoadedTemplate> active_template;
 	Renderer renderer;
+	Animator animator;
 	std::string status_text{"No template folder selected."};
 	enum obs_text_info_type status_info_type { OBS_TEXT_INFO_NORMAL };
 	bool reset_on_show{false};
+
+	// TEMPORARY (M4 OBS visual verification):
+	// Automated loop animation and demo state allow testing the Animator directly
+	// in OBS Studio before M6 (Qt dock control panel) and M7 (obs-websocket) are implemented.
+	bool demo_loop{true};
+	double demo_timer{0.0};
+	bool demo_is_shown{false};
 
 	double anim_time{0.0};
 	bool is_showing{true};
@@ -110,6 +119,7 @@ static void naxgc_source_get_defaults(obs_data_t *settings)
 	obs_data_set_default_int(settings, "width", static_cast<long long>(kDefaultWidth));
 	obs_data_set_default_int(settings, "height", static_cast<long long>(kDefaultHeight));
 	obs_data_set_default_bool(settings, "reset_on_show", false);
+	obs_data_set_default_bool(settings, "demo_loop", true);
 }
 
 static bool on_template_path_modified(void *priv, obs_properties_t *props, obs_property_t *property,
@@ -156,6 +166,36 @@ static bool on_template_path_modified(void *priv, obs_properties_t *props, obs_p
 	return true;
 }
 
+static bool on_show_clicked(obs_properties_t *props, obs_property_t *property, void *data)
+{
+	UNUSED_PARAMETER(props);
+	UNUSED_PARAMETER(property);
+	auto *context = static_cast<NaxgcSource *>(data);
+	if (!context || !context->active_template) {
+		return false;
+	}
+	if (context->animator.run_action("show").is_err()) {
+		context->animator.play("main.in");
+		context->animator.play("loop_vivo");
+	}
+	return true;
+}
+
+static bool on_hide_clicked(obs_properties_t *props, obs_property_t *property, void *data)
+{
+	UNUSED_PARAMETER(props);
+	UNUSED_PARAMETER(property);
+	auto *context = static_cast<NaxgcSource *>(data);
+	if (!context || !context->active_template) {
+		return false;
+	}
+	if (context->animator.run_action("hide").is_err()) {
+		context->animator.play("main.out");
+		context->animator.stop("loop_vivo");
+	}
+	return true;
+}
+
 static obs_properties_t *naxgc_source_get_properties(void *data)
 {
 	auto *context = static_cast<NaxgcSource *>(data);
@@ -175,6 +215,11 @@ static obs_properties_t *naxgc_source_get_properties(void *data)
 	obs_properties_add_int(props, "width", "Width", 100, 7680, 1);
 	obs_properties_add_int(props, "height", "Height", 100, 4320, 1);
 	obs_properties_add_bool(props, "reset_on_show", "Reset animation on show");
+
+	// TEMPORARY (M4 OBS visual verification): controls to trigger animations manually or in loop
+	obs_properties_add_bool(props, "demo_loop", "Demo loop animation (show / hide continuous)");
+	obs_properties_add_button2(props, "btn_show", "▶ Entrar (show)", on_show_clicked, context);
+	obs_properties_add_button2(props, "btn_hide", "■ Sair (hide)", on_hide_clicked, context);
 
 	return props;
 }
@@ -196,10 +241,12 @@ static void naxgc_source_update(void *data, obs_data_t *settings)
 	context->height = (h > 0) ? h : kDefaultHeight;
 
 	context->reset_on_show = obs_data_get_bool(settings, "reset_on_show");
+	context->demo_loop = obs_data_get_bool(settings, "demo_loop");
 
 	if (new_path.empty()) {
 		context->last_evaluated_path.clear();
 		context->active_template.reset();
+		context->animator.reset();
 		context->renderer.clear();
 		context->status_text = "No template folder selected.";
 		context->status_info_type = OBS_TEXT_INFO_NORMAL;
@@ -226,6 +273,37 @@ static void naxgc_source_update(void *data, obs_data_t *settings)
 			if (res.is_ok() && res.loaded.has_value()) {
 				context->active_template = std::make_shared<LoadedTemplate>(std::move(*res.loaded));
 				context->renderer.set_template(context->active_template, false);
+				context->animator.set_target(&context->active_template->manifest,
+							     &context->renderer.scene(), true);
+
+				// TEMPORARY (M4 OBS visual verification):
+				// Populate default placeholder text for the lower third if none was provided,
+				// so that typography and mask clipping are clearly visible during the animation check.
+				if (context->demo_loop) {
+					auto txt1 = context->renderer.scene().get_property_effective(
+						"layers.linha1texto.text");
+					if (txt1.is_ok() && std::holds_alternative<std::string>(txt1.value()) &&
+					    std::get<std::string>(txt1.value()).empty()) {
+						context->renderer.scene().set_property_base(
+							"layers.linha1texto.text",
+							std::string("Maria Fernanda Oliveira"));
+					}
+					auto txt2 = context->renderer.scene().get_property_effective(
+						"layers.linha2texto.text");
+					if (txt2.is_ok() && std::holds_alternative<std::string>(txt2.value()) &&
+					    std::get<std::string>(txt2.value()).empty()) {
+						context->renderer.scene().set_property_base(
+							"layers.linha2texto.text", std::string("Apresentadora"));
+					}
+
+					if (context->animator.run_action("show").is_err()) {
+						context->animator.play("main.in");
+						context->animator.play("loop_vivo");
+					}
+					context->demo_is_shown = true;
+					context->demo_timer = 0.0;
+				}
+
 				const Manifest &m = context->active_template->manifest;
 				blog(LOG_INFO,
 				     "[NaxGC] Template loaded: '%s' (id=%s, canvas=%ux%u, layers=%zu, clips=%zu)",
@@ -292,7 +370,11 @@ static void naxgc_source_show(void *data)
 	context->is_showing = true;
 	if (context->reset_on_show) {
 		context->anim_time = 0.0;
-		blog(LOG_INFO, "[NaxGC] Source shown (reset_on_show: anim_time reset to 0)");
+		if (context->active_template) {
+			context->animator.set_target(&context->active_template->manifest, &context->renderer.scene(),
+						     true);
+		}
+		blog(LOG_INFO, "[NaxGC] Source shown (reset_on_show: anim_time and animator reset)");
 	}
 }
 
@@ -315,6 +397,33 @@ static void naxgc_source_video_tick(void *data, float seconds)
 
 	// Advance animation deterministically based exclusively on OBS video_tick elapsed seconds
 	context->anim_time += static_cast<double>(seconds);
+	context->animator.tick(static_cast<double>(seconds));
+
+	// TEMPORARY (M4 OBS visual verification):
+	// Automatically cycles show/hide continuous loop so playback can be inspected in OBS Studio
+	// without keeping the animation idle/static for too long (2.0s on-air, 0.6s off-air).
+	if (context->demo_loop && context->active_template && context->is_showing) {
+		context->demo_timer += static_cast<double>(seconds);
+		if (context->demo_is_shown) {
+			if (context->demo_timer >= 2.0) {
+				if (context->animator.run_action("hide").is_err()) {
+					context->animator.play("main.out");
+					context->animator.stop("loop_vivo");
+				}
+				context->demo_is_shown = false;
+				context->demo_timer = 0.0;
+			}
+		} else {
+			if (context->demo_timer >= 0.6) {
+				if (context->animator.run_action("show").is_err()) {
+					context->animator.play("main.in");
+					context->animator.play("loop_vivo");
+				}
+				context->demo_is_shown = true;
+				context->demo_timer = 0.0;
+			}
+		}
+	}
 }
 
 static void naxgc_source_video_render(void *data, gs_effect_t *effect)

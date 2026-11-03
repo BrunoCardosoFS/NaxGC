@@ -17,7 +17,9 @@ fontes ─► QFontDatabase     (texto/cor)    (lunasvg/Qt)     matriz × opacid
 
 ### Layers `svg`
 - Para cada layer, renderiza **apenas o nó** (e descendentes que não sejam outras layers) com lunasvg: `getElementById(id)` → bbox → bitmap.
-- Textura com **bbox justo** (+ margem de 1–2 px para antialias) em vez de canvas inteiro; guarda o `offset` (posição do bbox no canvas) para desenhar no lugar certo. Reduz memória e tempo de upload.
+- **Isolamento de nós aninhados:** para preservar filtros, gradientes, `<defs>` e transformações acumuladas, os nós ancestrais até o `<svg>` raiz permanecem visíveis (`display` normal), enquanto elementos irmãos fora da linhagem são ocultados.
+- **Prevenção de duplicatas:** se um grupo SVG contiver filhos que foram declarados como layers próprias no manifest, esses elementos filhos recebem `display="none"` durante a rasterização da camada-pai, impedindo que os pixels dos filhos sejam "queimados" na textura do pai.
+- Textura com **bbox justo** (+ margem de 1–2 px para antialias) em vez de canvas inteiro; guarda o `offset` (posição do bbox no canvas obtida via `elem.getBBox().transformed(elem.getAbsoluteTransform())`) para desenhar no lugar certo. Reduz memória e tempo de upload.
 - Formato: BGRA 8 bits, alfa **pré-multiplicado**.
 - Mudança de `fill`/`stroke`/`strokeWidth` → reescreve o atributo no nó (cópia do documento) e re-rasteriza **só essa layer**.
 
@@ -43,11 +45,16 @@ fontes ─► QFontDatabase     (texto/cor)    (lunasvg/Qt)     matriz × opacid
 
 Para cada layer visível, em z-order:
 
-1. Calcular matriz mundial (`parent × local`, com `origin`) e opacidade efetiva.
-2. `gs_matrix_push()`; aplicar `translate/rotate/scale`.
-3. Blend premultiplicado: `gs_blend_function(GS_BLEND_ONE, GS_BLEND_INVSRCALPHA)`.
-4. Efeito padrão do OBS (`OBS_EFFECT_DEFAULT`) com `image` = textura e `color` = opacidade; `gs_draw_sprite`.
-5. `gs_matrix_pop()`.
+1. Calcular matriz mundial (`parent × local`, com `origin`/pivô) e opacidade efetiva. A composição de matriz afim 2D segue `T(pivot + offset) · R(rot) · S(scale) · T(-pivot)`.
+2. O `libobs` adota vetores-linha (`mul(float4(pos, 1.0), ViewProj)`). A estrutura `struct matrix4` mapeia linhas e translação em:
+   - `m.x = (a, b, 0, 0)`
+   - `m.y = (c, d, 0, 0)`
+   - `m.z = (0, 0, 1, 0)`
+   - `m.t = (tx, ty, 0, 1)`
+3. `gs_matrix_push()`; aplicar matriz combinada via `gs_matrix_mul(&m)`.
+4. Blend pré-multiplicado: `gs_blend_function_separate(GS_BLEND_ONE, GS_BLEND_INVSRCALPHA, GS_BLEND_ONE, GS_BLEND_INVSRCALPHA)`.
+5. Efeito da layer (`kLayerEffectSource`) com conversão sRGB → linear e modulação de opacidade; desenha o quad com textura `gs_draw_sprite`.
+6. `gs_matrix_pop()`.
 
 Fonte registrada com `OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_DO_NOT_DUPLICATE | OBS_SOURCE_SRGB`. A flag `OBS_SOURCE_DO_NOT_DUPLICATE` garante que transições de cena e o Modo Estúdio (Preview vs Program) compartilhem a mesma instância viva da fonte por referência, evitando clones paralelos e garantindo sincronia perfeita ao cortar cenas.
 

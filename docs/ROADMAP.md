@@ -14,6 +14,7 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 - [x] Definir versão mínima do OBS suportada (OBS 30.0+, somente Qt6)
 
 **Aceite:** plugin "vazio" compila e aparece na lista de módulos do OBS.
+**Status:** Aceito.
 
 ## M1 - Fonte nativa e prova de fluidez
 
@@ -23,6 +24,7 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 - [x] Decidir e documentar comportamento de tick quando a fonte está oculta (`show`/`hide`)
 
 **Aceite:** animação a 60 fps por 10 min sem *missed/skipped/lagged frames* atribuíveis ao plugin (Estatísticas do OBS).
+**Status:** Aceito.
 
 ## M2 - Manifest: carregamento e validação
 
@@ -33,6 +35,7 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 - [x] Testes com fixtures válidas/inválidas; `template/` valida sem avisos
 
 **Aceite:** manifest inválido nunca derruba o OBS; erro legível no log e na UI.
+**Status:** Aceito.
 
 ## M3 - Rasterização e cena
 
@@ -43,18 +46,20 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 - [x] Re-rasterização só quando conteúdo muda (texto, cor)
 
 **Aceite:** `template/` renderiza estático e fiel ao `layout.svg` em 1080p.
+**Status:** Aceito.
 
 ## M4 - Animator
 
-- [ ] Clips, tracks `from/to` e `keys`, easings (incl. cubic-bezier)
-- [ ] Triggers (`at`, `on: end`, `on: marker:*`), modos `linked`/`detached`
-- [ ] Tempo residual ao disparar filhos no mesmo quadro
-- [ ] Interrupção (`from` omitido = valor atual), `onEnd: hold|revert`
-- [ ] Estados nomeados (`states`) e `initialState`
-- [ ] Ações (`actions`) com `play`, `stop`, `set`, `delay`
-- [ ] Testes de golden values (avaliação de animação por quadro, sem OBS)
+- [x] Clips, tracks `from/to` e `keys`, easings (incl. cubic-bezier)
+- [x] Triggers (`at`, `on: end`, `on: marker:*`), modos `linked`/`detached`
+- [x] Tempo residual ao disparar filhos no mesmo quadro
+- [x] Interrupção (`from` omitido = valor atual), `onEnd: hold|revert`
+- [x] Estados nomeados (`states`) e `initialState`
+- [x] Ações (`actions`) com `play`, `stop`, `set`, `delay`
+- [x] Testes de golden values (avaliação de animação por quadro, sem OBS)
 
 **Aceite:** `main.in`/`main.out` do template reproduzem a coreografia esperada; testes do core passando.
+**Status:** Aceito.
 
 ## M5 - Máscaras
 

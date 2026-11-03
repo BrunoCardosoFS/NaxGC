@@ -903,10 +903,26 @@ TemplateLoadResult load_template_package(const std::filesystem::path &package_ro
 	}
 
 	if (!has_errors && svg_info.has_value()) {
+		std::vector<LoadedFontData> loaded_fonts;
+		for (const auto &font : parsed_manifest->fonts) {
+			if (font.file.empty()) {
+				continue;
+			}
+			auto font_bytes = read_package_file_bounded(package_root, font.file, kMaxFontBytes, "NXG-E003");
+			if (font_bytes.is_ok()) {
+				loaded_fonts.push_back(LoadedFontData{
+					font.family,
+					font.file,
+					std::move(font_bytes.value()),
+				});
+			}
+		}
+
 		result.loaded = LoadedTemplate{
 			std::move(*parsed_manifest),
 			std::move(svg_content),
 			std::move(*svg_info),
+			std::move(loaded_fonts),
 		};
 	}
 

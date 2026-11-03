@@ -29,10 +29,17 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 namespace naxgc {
 
+struct LoadedFontData {
+	std::string family;
+	std::string file;
+	std::string bytes;
+};
+
 struct LoadedTemplate {
 	Manifest manifest;
 	std::string svg_content;
 	SvgInspectionResult svg_info;
+	std::vector<LoadedFontData> font_files;
 };
 
 struct TemplateLoadResult {

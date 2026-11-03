@@ -32,6 +32,8 @@ struct SvgElementInfo {
 	std::string id;
 	std::string tag;
 	std::vector<std::string> ancestor_ids;
+	std::optional<double> x;
+	std::optional<double> y;
 	std::optional<double> width;
 	std::optional<double> height;
 };

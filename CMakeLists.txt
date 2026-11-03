@@ -15,6 +15,9 @@ include(FetchContent)
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
+set(LUNASVG_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 # gersemi: off
 FetchContent_Declare(
   nlohmann_json
@@ -22,24 +25,40 @@ FetchContent_Declare(
   URL_HASH SHA256=d6c65aca6b1ed68e7a182f4757257b107ae403032760ed6ef121c9d55e81757d
   SYSTEM
 )
-FetchContent_MakeAvailable(nlohmann_json)
+FetchContent_Declare(
+  lunasvg
+  URL https://github.com/sammycage/lunasvg/archive/refs/tags/v2.4.1.tar.gz
+  URL_HASH SHA256=db9d2134c8c2545694e71e62fb0772a7d089fe53e1ace1e08c2279a89e450534
+  SYSTEM
+)
+FetchContent_MakeAvailable(nlohmann_json lunasvg)
 # gersemi: on
+
+target_compile_definitions(lunasvg PUBLIC LUNASVG_BUILD_STATIC)
+set_property(TARGET lunasvg PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET lunasvg PROPERTY COMPILE_WARNING_AS_ERROR OFF)
+if(MSVC)
+  target_compile_options(lunasvg PRIVATE /W0)
+else()
+  target_compile_options(lunasvg PRIVATE -w)
+endif()
 
 add_library(naxgc_core STATIC)
 set_property(TARGET naxgc_core PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_sources(naxgc_core PRIVATE src/core/util/result.hpp src/core/util/color.hpp src/core/util/color.cpp)
-target_sources(naxgc_core PRIVATE src/core/util/safe_path.hpp src/core/util/safe_path.cpp)
+target_sources(naxgc_core PRIVATE src/core/util/mat2d.hpp src/core/util/safe_path.hpp src/core/util/safe_path.cpp)
 target_sources(naxgc_core PRIVATE src/core/manifest/manifest_types.hpp src/core/manifest/svg_inspector.hpp)
 target_sources(naxgc_core PRIVATE src/core/manifest/svg_inspector.cpp src/core/manifest/manifest_parser.hpp)
 target_sources(naxgc_core PRIVATE src/core/manifest/manifest_parser.cpp src/core/manifest/manifest_validator.hpp)
 target_sources(naxgc_core PRIVATE src/core/manifest/manifest_validator.cpp)
+target_sources(naxgc_core PRIVATE src/core/scene/scene.hpp src/core/scene/scene.cpp)
 target_include_directories(naxgc_core PUBLIC src)
 target_link_libraries(naxgc_core PRIVATE nlohmann_json::nlohmann_json)
 
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
 find_package(libobs REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs naxgc_core)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs naxgc_core lunasvg)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM PRIVATE third_party/obs-websocket)
@@ -50,8 +69,8 @@ if(ENABLE_FRONTEND_API)
 endif()
 
 if(ENABLE_QT)
-  find_package(Qt6 COMPONENTS Widgets Core)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets)
+  find_package(Qt6 COMPONENTS Widgets Gui Core REQUIRED)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
   target_compile_options(
     ${CMAKE_PROJECT_NAME}
     PRIVATE $<$<C_COMPILER_ID:Clang,AppleClang>:-Wno-quoted-include-in-framework-header -Wno-comma>
@@ -63,6 +82,10 @@ if(ENABLE_QT)
 endif()
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp src/obs/naxgc_source.hpp src/obs/naxgc_source.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/rasterizer_svg.hpp src/render/rasterizer_svg.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/rasterizer_text.hpp src/render/rasterizer_text.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/texture_cache.hpp src/render/texture_cache.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/renderer.hpp src/render/renderer.cpp)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
 
@@ -79,10 +102,23 @@ if(NAXGC_BUILD_TESTS)
   FetchContent_MakeAvailable(doctest)
   # gersemi: on
 
-  add_executable(naxgc_core_tests tests/core/manifest_test.cpp)
+  add_executable(naxgc_core_tests tests/core/manifest_test.cpp tests/core/scene_test.cpp tests/core/rasterizer_test.cpp)
+  target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_svg.hpp src/render/rasterizer_svg.cpp)
+  target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_text.hpp src/render/rasterizer_text.cpp)
+  target_include_directories(naxgc_core_tests PRIVATE src)
   target_include_directories(naxgc_core_tests SYSTEM PRIVATE ${doctest_SOURCE_DIR})
-  target_link_libraries(naxgc_core_tests PRIVATE naxgc_core)
+  target_link_libraries(naxgc_core_tests PRIVATE naxgc_core lunasvg Qt6::Core Qt6::Gui)
   target_compile_definitions(naxgc_core_tests PRIVATE NAXGC_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   add_test(NAME naxgc_core_tests COMMAND naxgc_core_tests)
+  if(WIN32)
+    # gersemi: off
+    set_tests_properties(
+      naxgc_core_tests
+      PROPERTIES
+        ENVIRONMENT_MODIFICATION
+          "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>;QT_PLUGIN_PATH=set:$<TARGET_FILE_DIR:Qt6::Core>/../plugins"
+    )
+    # gersemi: on
+  endif()
 endif()

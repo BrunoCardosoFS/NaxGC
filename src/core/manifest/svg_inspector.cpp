@@ -354,6 +354,14 @@ Result<SvgInspectionResult> inspect_svg(std::string_view svg_content)
 				info.id = elem_id;
 				info.tag = local_tag;
 				info.ancestor_ids = ancestor_ids;
+				auto x_it = attrs.find("x");
+				if (x_it != attrs.end()) {
+					info.x = parse_svg_number(x_it->second);
+				}
+				auto y_it = attrs.find("y");
+				if (y_it != attrs.end()) {
+					info.y = parse_svg_number(y_it->second);
+				}
 				auto w_it = attrs.find("width");
 				if (w_it != attrs.end()) {
 					info.width = parse_svg_number(w_it->second);
@@ -361,6 +369,47 @@ Result<SvgInspectionResult> inspect_svg(std::string_view svg_content)
 				auto h_it = attrs.find("height");
 				if (h_it != attrs.end()) {
 					info.height = parse_svg_number(h_it->second);
+				}
+				if (local_tag == "circle") {
+					auto cx_it = attrs.find("cx");
+					auto cy_it = attrs.find("cy");
+					auto r_it = attrs.find("r");
+					const double cx = (cx_it != attrs.end())
+								  ? parse_svg_number(cx_it->second).value_or(0.0)
+								  : 0.0;
+					const double cy = (cy_it != attrs.end())
+								  ? parse_svg_number(cy_it->second).value_or(0.0)
+								  : 0.0;
+					const auto r_opt = (r_it != attrs.end()) ? parse_svg_number(r_it->second)
+										 : std::nullopt;
+					if (r_opt.has_value() && *r_opt > 0.0) {
+						info.x = cx - *r_opt;
+						info.y = cy - *r_opt;
+						info.width = *r_opt * 2.0;
+						info.height = *r_opt * 2.0;
+					}
+				} else if (local_tag == "ellipse") {
+					auto cx_it = attrs.find("cx");
+					auto cy_it = attrs.find("cy");
+					auto rx_it = attrs.find("rx");
+					auto ry_it = attrs.find("ry");
+					const double cx = (cx_it != attrs.end())
+								  ? parse_svg_number(cx_it->second).value_or(0.0)
+								  : 0.0;
+					const double cy = (cy_it != attrs.end())
+								  ? parse_svg_number(cy_it->second).value_or(0.0)
+								  : 0.0;
+					const auto rx_opt = (rx_it != attrs.end()) ? parse_svg_number(rx_it->second)
+										   : std::nullopt;
+					const auto ry_opt = (ry_it != attrs.end()) ? parse_svg_number(ry_it->second)
+										   : std::nullopt;
+					if (rx_opt.has_value() && ry_opt.has_value() && *rx_opt > 0.0 &&
+					    *ry_opt > 0.0) {
+						info.x = cx - *rx_opt;
+						info.y = cy - *ry_opt;
+						info.width = *rx_opt * 2.0;
+						info.height = *ry_opt * 2.0;
+					}
 				}
 				result.ordered_ids.push_back(elem_id);
 				result.elements_by_id.emplace(elem_id, std::move(info));

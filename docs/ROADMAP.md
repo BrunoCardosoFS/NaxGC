@@ -36,11 +36,11 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 
 ## M3 - Rasterização e cena
 
-- [ ] Cena com layers, hierarquia (pai/filho) e propriedades tipadas
-- [ ] Rasterização de layers `svg` por `id` com lunasvg (bbox justo, cache e escala híbrida: detecção automática da escala máxima nos clips + override manual via `rasterScale`)
-- [ ] Layers `text` rasterizadas com Qt (fonte do pacote, overflow `shrink`/`clip`/`ellipsis`/`wrap`)
-- [ ] Desenho em z-order do SVG com opacidade e matrizes herdadas
-- [ ] Re-rasterização só quando conteúdo muda (texto, cor)
+- [x] Cena com layers, hierarquia (pai/filho) e propriedades tipadas
+- [x] Rasterização de layers `svg` por `id` com lunasvg (bbox justo, cache e escala híbrida: detecção automática da escala máxima nos clips + override manual via `rasterScale`)
+- [x] Layers `text` rasterizadas com Qt (fonte do pacote, overflow `shrink`/`clip`/`ellipsis`/`wrap`)
+- [x] Desenho em z-order do SVG com opacidade e matrizes herdadas
+- [x] Re-rasterização só quando conteúdo muda (texto, cor)
 
 **Aceite:** `template/` renderiza estático e fiel ao `layout.svg` em 1080p.
 

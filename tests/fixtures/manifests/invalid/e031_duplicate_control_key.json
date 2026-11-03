@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e031", "name": "E031" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "titulo": { "type": "text", "id": "txt_titulo" } },
+  "panel": {
+    "sections": [
+      {
+        "title": "Conteúdo",
+        "controls": [
+          { "key": "mesma_chave", "type": "text", "bind": "layers.titulo.text" },
+          { "key": "mesma_chave", "type": "text", "bind": "layers.titulo.text" }
+        ]
+      }
+    ]
+  }
+}
+

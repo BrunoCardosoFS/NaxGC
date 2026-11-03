@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e022", "name": "E022" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "animations": {
+    "in": {
+      "tracks": [{ "layer": "layer_fantasma", "prop": "x", "from": -100, "to": 0, "dur": 0.5 }]
+    }
+  }
+}
+

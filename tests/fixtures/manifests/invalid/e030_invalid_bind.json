@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e030", "name": "E030" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "panel": {
+    "sections": [
+      {
+        "title": "Conteúdo",
+        "controls": [
+          { "key": "c1", "type": "text", "bind": "caminho.invalido" }
+        ]
+      }
+    ]
+  }
+}
+

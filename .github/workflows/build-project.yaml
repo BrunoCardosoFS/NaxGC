@@ -142,6 +142,9 @@ jobs:
           codesign: ${{ fromJSON(needs.check-event.outputs.codesign) }}
           codesignIdent: ${{ steps.codesign.outputs.codesignIdent }}
 
+      - name: Run Unit Tests 🧪
+        run: ctest --preset macos-ci --output-on-failure
+
       - name: Package Plugin 📀
         uses: ./.github/actions/package-plugin
         with:
@@ -217,6 +220,9 @@ jobs:
           target: x86_64
           config: ${{ needs.check-event.outputs.config }}
 
+      - name: Run Unit Tests 🧪
+        run: ctest --preset ubuntu-ci-x86_64 --output-on-failure
+
       - name: Package Plugin 📀
         uses: ./.github/actions/package-plugin
         with:
@@ -282,6 +288,9 @@ jobs:
         with:
           target: x64
           config: ${{ needs.check-event.outputs.config }}
+
+      - name: Run Unit Tests 🧪
+        run: ctest --preset windows-ci-x64 --output-on-failure
 
       - name: Package Plugin 📀
         uses: ./.github/actions/package-plugin

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e040", "name": "E040" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "actions": {
+    "show": [{ "play": "clip_inexistente" }]
+  }
+}
+

@@ -1,0 +1,575 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/BrunoCardosoFS/NaxGC/schemas/manifest.schema.json",
+  "title": "NaxGC Template Manifest (Schema 1)",
+  "description": "Public contract for NaxGC broadcast character generator template packages.",
+  "type": "object",
+  "required": ["schema", "meta", "canvas", "svg", "layers"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path or URL to the NaxGC manifest JSON Schema."
+    },
+    "schema": {
+      "type": "integer",
+      "const": 1,
+      "description": "Manifest schema version. Current version is 1."
+    },
+    "meta": {
+      "$ref": "#/$defs/meta"
+    },
+    "canvas": {
+      "$ref": "#/$defs/canvas"
+    },
+    "svg": {
+      "$ref": "#/$defs/safeRelativePath",
+      "description": "Relative path to the layout SVG file inside the template package."
+    },
+    "initialState": {
+      "$ref": "#/$defs/identifier",
+      "description": "Named state from 'states' applied when the template is loaded."
+    },
+    "fonts": {
+      "type": "array",
+      "description": "Bundled font files used by text layers.",
+      "items": {
+        "$ref": "#/$defs/font"
+      }
+    },
+    "layers": {
+      "type": "object",
+      "description": "Map of layer name to layer definition.",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/identifier"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/layer"
+      }
+    },
+    "states": {
+      "type": "object",
+      "description": "Named property snapshots (map of state name to map of 'layers.<layer>.<prop>' -> value).",
+      "propertyNames": {
+        "$ref": "#/$defs/identifier"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/stateSnapshot"
+      }
+    },
+    "panel": {
+      "$ref": "#/$defs/panel"
+    },
+    "animations": {
+      "type": "object",
+      "description": "Map of clip name to animation clip definition.",
+      "propertyNames": {
+        "$ref": "#/$defs/identifier"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/clip"
+      }
+    },
+    "actions": {
+      "type": "object",
+      "description": "Map of action name to ordered list of action steps.",
+      "propertyNames": {
+        "$ref": "#/$defs/identifier"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/actionStep"
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    "^x-": true
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!\\\\)(?![A-Za-z]:)(?!.*(^|/|\\\\)\\.\\.($|/|\\\\))[^\\\\]+$"
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "propertyPath": {
+      "type": "string",
+      "pattern": "^layers\\.[A-Za-z0-9_.-]+\\.(x|y|scale|scaleX|scaleY|rotation|opacity|visible|fill|stroke|strokeWidth|text|color|size|src)$"
+    },
+    "propertyValue": {
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "number" },
+        { "type": "string" }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9.-]+$",
+          "description": "Unique reverse-domain template identifier."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable display name."
+        },
+        "version": {
+          "type": "string",
+          "description": "Template SemVer version."
+        },
+        "author": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "requires": {
+          "type": "object",
+          "properties": {
+            "naxgc": {
+              "type": "string",
+              "description": "Required NaxGC version range (e.g. '>=0.1.0')."
+            }
+          },
+          "patternProperties": {
+            "^x-": true
+          },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false
+    },
+    "canvas": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fps": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 60
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false
+    },
+    "font": {
+      "type": "object",
+      "required": ["family", "file"],
+      "properties": {
+        "family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file": {
+          "$ref": "#/$defs/safeRelativePath"
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false
+    },
+    "layerCommon": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "const": "mask"
+        },
+        "origin": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "default": [0, 0]
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "mask": {
+          "$ref": "#/$defs/identifier"
+        },
+        "maskMode": {
+          "type": "string",
+          "enum": ["alpha", "inverse"],
+          "default": "alpha"
+        },
+        "rasterScale": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "layer": {
+      "oneOf": [
+        {
+          "allOf": [{ "$ref": "#/$defs/layerCommon" }],
+          "type": "object",
+          "required": ["type", "id"],
+          "properties": {
+            "type": { "const": "svg" },
+            "id": {},
+            "role": {},
+            "origin": {},
+            "opacity": {},
+            "visible": {},
+            "mask": {},
+            "maskMode": {},
+            "rasterScale": {},
+            "fill": { "$ref": "#/$defs/color" },
+            "stroke": { "$ref": "#/$defs/color" },
+            "strokeWidth": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "patternProperties": { "^x-": true },
+          "additionalProperties": false
+        },
+        {
+          "allOf": [{ "$ref": "#/$defs/layerCommon" }],
+          "type": "object",
+          "required": ["type", "id"],
+          "properties": {
+            "type": { "const": "text" },
+            "id": {},
+            "role": {},
+            "origin": {},
+            "opacity": {},
+            "visible": {},
+            "mask": {},
+            "maskMode": {},
+            "rasterScale": {},
+            "text": { "type": "string", "default": "" },
+            "font": { "type": "string" },
+            "weight": { "type": "integer", "minimum": 100, "maximum": 900, "default": 400 },
+            "italic": { "type": "boolean", "default": false },
+            "size": { "type": "number", "exclusiveMinimum": 0, "default": 32 },
+            "minSize": { "type": "number", "exclusiveMinimum": 0 },
+            "color": { "$ref": "#/$defs/color", "default": "#ffffff" },
+            "align": { "type": "string", "enum": ["left", "center", "right"], "default": "left" },
+            "valign": { "type": "string", "enum": ["top", "middle", "bottom"], "default": "middle" },
+            "overflow": { "type": "string", "enum": ["shrink", "clip", "ellipsis", "wrap"], "default": "clip" },
+            "maxLines": { "type": "integer", "minimum": 1, "default": 1 },
+            "lineHeight": { "type": "number", "exclusiveMinimum": 0, "default": 1.2 },
+            "letterSpacing": { "type": "number", "default": 0 },
+            "uppercase": { "type": "boolean", "default": false }
+          },
+          "patternProperties": { "^x-": true },
+          "additionalProperties": false
+        },
+        {
+          "allOf": [{ "$ref": "#/$defs/layerCommon" }],
+          "type": "object",
+          "required": ["type", "id", "src"],
+          "properties": {
+            "type": { "const": "image" },
+            "id": {},
+            "role": {},
+            "origin": {},
+            "opacity": {},
+            "visible": {},
+            "mask": {},
+            "maskMode": {},
+            "rasterScale": {},
+            "src": { "$ref": "#/$defs/safeRelativePath" },
+            "fit": { "type": "string", "enum": ["contain", "cover", "stretch"], "default": "contain" }
+          },
+          "patternProperties": { "^x-": true },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "stateSnapshot": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/propertyPath"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/propertyValue"
+      }
+    },
+    "panel": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/panelSection"
+          }
+        }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "panelSection": {
+      "type": "object",
+      "required": ["title", "controls"],
+      "properties": {
+        "title": { "type": "string" },
+        "collapsed": { "type": "boolean", "default": false },
+        "columns": { "type": "integer", "minimum": 1, "maximum": 3, "default": 1 },
+        "controls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/control"
+          }
+        }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "bindTarget": {
+      "oneOf": [
+        { "$ref": "#/$defs/propertyPath" },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/propertyPath" }
+        }
+      ]
+    },
+    "control": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["text", "number", "toggle", "color", "dropdown", "button", "label", "separator"]
+        },
+        "key": { "$ref": "#/$defs/identifier" },
+        "label": { "type": "string" },
+        "bind": { "$ref": "#/$defs/bindTarget" },
+        "default": { "$ref": "#/$defs/propertyValue" },
+        "tooltip": { "type": "string" },
+        "placeholder": { "type": "string" },
+        "maxLength": { "type": "integer", "minimum": 1 },
+        "multiline": { "type": "boolean", "default": false },
+        "submitAction": { "$ref": "#/$defs/identifier" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "step": { "type": "number", "exclusiveMinimum": 0 },
+        "slider": { "type": "boolean", "default": false },
+        "unit": { "type": "string" },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["label"],
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "value": { "$ref": "#/$defs/propertyValue" },
+              "apply": { "$ref": "#/$defs/identifier" }
+            },
+            "oneOf": [
+              { "required": ["value"] },
+              { "required": ["apply"] }
+            ],
+            "patternProperties": { "^x-": true },
+            "additionalProperties": false
+          }
+        },
+        "action": { "$ref": "#/$defs/identifier" },
+        "style": { "type": "string", "enum": ["default", "primary", "danger"], "default": "default" },
+        "hotkey": { "type": "string" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "easing": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "linear",
+            "inQuad",
+            "outQuad",
+            "inOutQuad",
+            "inCubic",
+            "outCubic",
+            "inOutCubic",
+            "inSine",
+            "outSine",
+            "inOutSine",
+            "inExpo",
+            "outExpo",
+            "inOutExpo",
+            "inBack",
+            "outBack",
+            "inOutBack",
+            "outElastic",
+            "outBounce"
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            { "type": "number", "minimum": 0, "maximum": 1 },
+            { "type": "number" },
+            { "type": "number", "minimum": 0, "maximum": 1 },
+            { "type": "number" }
+          ]
+        }
+      ]
+    },
+    "track": {
+      "type": "object",
+      "required": ["layer", "prop"],
+      "properties": {
+        "layer": { "$ref": "#/$defs/identifier" },
+        "prop": {
+          "type": "string",
+          "enum": [
+            "x",
+            "y",
+            "scale",
+            "scaleX",
+            "scaleY",
+            "rotation",
+            "opacity",
+            "visible",
+            "fill",
+            "stroke",
+            "strokeWidth",
+            "text",
+            "color",
+            "size"
+          ]
+        },
+        "from": { "$ref": "#/$defs/propertyValue" },
+        "to": { "$ref": "#/$defs/propertyValue" },
+        "keys": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              { "type": "number", "minimum": 0 },
+              { "$ref": "#/$defs/propertyValue" }
+            ]
+          }
+        },
+        "start": { "type": "number", "minimum": 0, "default": 0 },
+        "dur": { "type": "number", "exclusiveMinimum": 0 },
+        "ease": { "$ref": "#/$defs/easing", "default": "linear" },
+        "blend": { "type": "string", "enum": ["override", "add"], "default": "override" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["play"],
+      "properties": {
+        "play": { "$ref": "#/$defs/identifier" },
+        "at": { "type": "number", "minimum": 0, "default": 0 },
+        "on": {
+          "type": "string",
+          "pattern": "^(end|marker:[A-Za-z0-9_.-]+)$"
+        },
+        "delay": { "type": "number", "minimum": 0, "default": 0 },
+        "mode": { "type": "string", "enum": ["linked", "detached"], "default": "linked" },
+        "speed": {
+          "oneOf": [
+            { "type": "number", "exclusiveMinimum": 0 },
+            { "const": "inherit" }
+          ],
+          "default": 1
+        }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "clip": {
+      "type": "object",
+      "properties": {
+        "tracks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/track" }
+        },
+        "triggers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/trigger" }
+        },
+        "markers": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/identifier" },
+          "additionalProperties": { "type": "number", "minimum": 0 }
+        },
+        "duration": { "type": "number", "exclusiveMinimum": 0 },
+        "loop": { "type": "boolean", "default": false },
+        "onEnd": { "type": "string", "enum": ["hold", "revert"], "default": "hold" },
+        "retrigger": { "type": "string", "enum": ["restart", "ignore", "stack"], "default": "restart" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "actionStep": {
+      "type": "object",
+      "properties": {
+        "play": { "$ref": "#/$defs/identifier" },
+        "stop": { "$ref": "#/$defs/identifier" },
+        "set": { "$ref": "#/$defs/identifier" },
+        "call": { "$ref": "#/$defs/identifier" },
+        "delay": { "type": "number", "minimum": 0, "default": 0 }
+      },
+      "oneOf": [
+        { "required": ["play"] },
+        { "required": ["stop"] },
+        { "required": ["set"] },
+        { "required": ["call"] }
+      ],
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    }
+  }
+}
+

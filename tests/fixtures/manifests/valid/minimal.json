@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "meta": { "id": "exemplo.minimo", "name": "Mínimo" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": {
+    "barra": { "type": "svg", "id": "barra" }
+  },
+  "animations": {
+    "in": {
+      "tracks": [
+        { "layer": "barra", "prop": "x", "from": -800, "to": 0, "dur": 0.5, "ease": "outCubic" }
+      ]
+    }
+  },
+  "actions": {
+    "show": [{ "play": "in" }]
+  }
+}
+

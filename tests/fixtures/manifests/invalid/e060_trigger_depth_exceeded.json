@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e060", "name": "E060" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "animations": {
+    "c00": { "triggers": [{ "play": "c01" }] },
+    "c01": { "triggers": [{ "play": "c02" }] },
+    "c02": { "triggers": [{ "play": "c03" }] },
+    "c03": { "triggers": [{ "play": "c04" }] },
+    "c04": { "triggers": [{ "play": "c05" }] },
+    "c05": { "triggers": [{ "play": "c06" }] },
+    "c06": { "triggers": [{ "play": "c07" }] },
+    "c07": { "triggers": [{ "play": "c08" }] },
+    "c08": { "triggers": [{ "play": "c09" }] },
+    "c09": { "triggers": [{ "play": "c10" }] },
+    "c10": { "triggers": [{ "play": "c11" }] },
+    "c11": { "triggers": [{ "play": "c12" }] },
+    "c12": { "triggers": [{ "play": "c13" }] },
+    "c13": { "triggers": [{ "play": "c14" }] },
+    "c14": { "triggers": [{ "play": "c15" }] },
+    "c15": { "triggers": [{ "play": "c16" }] },
+    "c16": { "triggers": [{ "play": "c17" }] },
+    "c17": { "tracks": [{ "layer": "barra", "prop": "x", "from": -100, "to": 0, "dur": 0.2 }] }
+  }
+}
+

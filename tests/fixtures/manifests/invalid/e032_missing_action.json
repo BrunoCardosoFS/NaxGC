@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e032", "name": "E032" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "panel": {
+    "sections": [
+      {
+        "title": "Exibição",
+        "controls": [
+          { "type": "button", "label": "Ir", "action": "acao_inexistente" }
+        ]
+      }
+    ]
+  }
+}
+

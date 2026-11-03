@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e020", "name": "E020" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "animations": {
+    "main.in": {
+      "triggers": [{ "play": "clip_fantasma", "at": 0.0 }]
+    }
+  }
+}
+

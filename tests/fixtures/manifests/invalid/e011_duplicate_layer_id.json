@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e011", "name": "E011" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": {
+    "barra_a": { "type": "svg", "id": "barra" },
+    "barra_b": { "type": "svg", "id": "barra" }
+  }
+}
+

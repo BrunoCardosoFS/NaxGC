@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e013", "name": "E013" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": {
+    "barra": { "type": "video", "id": "barra" }
+  }
+}
+

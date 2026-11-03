@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e003", "name": "E003" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "../outside.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } }
+}
+

@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e021", "name": "E021" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "animations": {
+    "clip_a": { "triggers": [{ "play": "clip_b", "at": 0.1 }] },
+    "clip_b": { "triggers": [{ "play": "clip_a", "at": 0.1 }] }
+  }
+}
+

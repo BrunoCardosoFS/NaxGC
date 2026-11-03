@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e025", "name": "E025" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "animations": {
+    "pai": {
+      "markers": { "inicio": 0.1 },
+      "triggers": [{ "play": "filho", "on": "marker:nao_existe" }]
+    },
+    "filho": {
+      "tracks": [{ "layer": "barra", "prop": "x", "from": -100, "to": 0, "dur": 0.3 }]
+    }
+  }
+}
+

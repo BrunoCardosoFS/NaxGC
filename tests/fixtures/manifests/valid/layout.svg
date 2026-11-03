@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect id="barra" x="100" y="800" width="800" height="80" fill="#0b2a5b"/>
+  <rect id="txt_titulo" x="120" y="800" width="760" height="80" fill="none"/>
+  <g id="grupo_tag">
+    <rect x="100" y="740" width="140" height="40" fill="#d00000"/>
+    <circle id="dot" cx="120" cy="760" r="8" fill="#ffffff"/>
+  </g>
+  <g id="masks">
+    <rect id="mask_barra" x="100" y="800" width="800" height="80" fill="#ffffff"/>
+  </g>
+</svg>
+

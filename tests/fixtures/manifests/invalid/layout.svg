@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect id="barra" x="100" y="800" width="800" height="80" fill="#0b2a5b"/>
+  <rect id="txt_titulo" x="120" y="800" width="760" height="80" fill="none"/>
+  <rect id="mask_barra" x="100" y="800" width="800" height="80" fill="#ffffff"/>
+</svg>
+

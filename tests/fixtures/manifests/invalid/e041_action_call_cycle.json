@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e041", "name": "E041" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "barra": { "type": "svg", "id": "barra" } },
+  "actions": {
+    "acao_a": [{ "call": "acao_b" }],
+    "acao_b": [{ "call": "acao_a" }]
+  }
+}
+

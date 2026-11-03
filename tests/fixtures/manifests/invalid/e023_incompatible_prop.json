@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "meta": { "id": "test.e023", "name": "E023" },
+  "canvas": { "width": 1920, "height": 1080 },
+  "svg": "layout.svg",
+  "layers": { "titulo": { "type": "text", "id": "txt_titulo" } },
+  "animations": {
+    "in": {
+      "tracks": [{ "layer": "titulo", "prop": "fill", "from": "#000000", "to": "#ffffff", "dur": 0.5 }]
+    }
+  }
+}
+

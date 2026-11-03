@@ -16,6 +16,7 @@ add_library(${CMAKE_PROJECT_NAME} MODULE)
 find_package(libobs REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM PRIVATE third_party/obs-websocket)
 
 if(ENABLE_FRONTEND_API)
@@ -36,6 +37,11 @@ if(ENABLE_QT)
   )
 endif()
 
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp)
+target_sources(
+  ${CMAKE_PROJECT_NAME}
+  PRIVATE src/plugin-main.cpp
+          src/obs/naxgc_source.hpp
+          src/obs/naxgc_source.cpp
+)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})

@@ -48,6 +48,11 @@ endfunction()
 
 # _setup_obs_studio: Create obs-studio build project, then build libobs and obs-frontend-api
 function(_setup_obs_studio)
+  if(EXISTS "${dependencies_dir}/lib/obs.lib" AND EXISTS "${dependencies_dir}/lib/obs-frontend-api.lib")
+    message(STATUS "Setting up ${label} (${arch}) - up to date")
+    return()
+  endif()
+
   if(NOT libobs_DIR)
     set(_is_fresh --fresh)
   endif()

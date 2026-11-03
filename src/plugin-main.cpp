@@ -16,15 +16,18 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include <obs-module.h>
 #include <obs-frontend-api.h>
+#include <obs-module.h>
 #include <obs-websocket-api.h>
 #include <plugin-support.h>
+
+#include "obs/naxgc_source.hpp"
 
 OBS_DECLARE_MODULE()
 
 bool obs_module_load(void)
 {
+	obs_register_source(&naxgc::naxgc_source_info);
 	blog(LOG_INFO, "[NaxGC] plugin loaded successfully (version %s)", PLUGIN_VERSION);
 	return true;
 }

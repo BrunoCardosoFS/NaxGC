@@ -24,12 +24,14 @@ FetchContent_Declare(
   URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
   URL_HASH SHA256=d6c65aca6b1ed68e7a182f4757257b107ae403032760ed6ef121c9d55e81757d
   SYSTEM
+  EXCLUDE_FROM_ALL
 )
 FetchContent_Declare(
   lunasvg
   URL https://github.com/sammycage/lunasvg/archive/refs/tags/v2.4.1.tar.gz
   URL_HASH SHA256=db9d2134c8c2545694e71e62fb0772a7d089fe53e1ace1e08c2279a89e450534
   SYSTEM
+  EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(nlohmann_json lunasvg)
 # gersemi: on
@@ -118,6 +120,44 @@ if(NAXGC_BUILD_TESTS)
       PROPERTIES
         ENVIRONMENT_MODIFICATION
           "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>;QT_PLUGIN_PATH=set:$<TARGET_FILE_DIR:Qt6::Core>/../plugins"
+    )
+    # gersemi: on
+  elseif(APPLE)
+    set(_qt_lib_dir "${Qt6_DIR}/../..")
+    cmake_path(NORMAL_PATH _qt_lib_dir)
+    set(_qt_plugin_dir "${Qt6_DIR}/../../../plugins")
+    cmake_path(NORMAL_PATH _qt_plugin_dir)
+
+    set(_macos_test_rpaths "${_qt_lib_dir}")
+    foreach(_prefix IN LISTS CMAKE_PREFIX_PATH)
+      if(EXISTS "${_prefix}/lib")
+        list(APPEND _macos_test_rpaths "${_prefix}/lib")
+      endif()
+      if(EXISTS "${_prefix}/Frameworks")
+        list(APPEND _macos_test_rpaths "${_prefix}/Frameworks")
+      endif()
+    endforeach()
+    list(REMOVE_DUPLICATES _macos_test_rpaths)
+
+    foreach(_rpath IN LISTS _macos_test_rpaths)
+      target_link_options(naxgc_core_tests PRIVATE "LINKER:-rpath,${_rpath}")
+    endforeach()
+
+    # gersemi: off
+    set_target_properties(
+      naxgc_core_tests
+      PROPERTIES
+        XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME NO
+        "XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME[variant=Release]" NO
+        "XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME[variant=RelWithDebInfo]" NO
+        "XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME[variant=MinSizeRel]" NO
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
+    )
+    set_tests_properties(
+      naxgc_core_tests
+      PROPERTIES
+        ENVIRONMENT_MODIFICATION
+          "DYLD_FRAMEWORK_PATH=path_list_prepend:${_qt_lib_dir};QT_PLUGIN_PATH=set:${_qt_plugin_dir}"
     )
     # gersemi: on
   endif()

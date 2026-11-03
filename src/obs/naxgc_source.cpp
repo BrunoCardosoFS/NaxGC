@@ -401,11 +401,11 @@ static void naxgc_source_video_tick(void *data, float seconds)
 
 	// TEMPORARY (M4 OBS visual verification):
 	// Automatically cycles show/hide continuous loop so playback can be inspected in OBS Studio
-	// without keeping the animation idle/static for too long (2.0s on-air, 0.6s off-air).
+	// without keeping the animation idle/static for too long (3.5s on-air, 1.2s off-air).
 	if (context->demo_loop && context->active_template && context->is_showing) {
 		context->demo_timer += static_cast<double>(seconds);
 		if (context->demo_is_shown) {
-			if (context->demo_timer >= 2.0) {
+			if (context->demo_timer >= 3.5) {
 				if (context->animator.run_action("hide").is_err()) {
 					context->animator.play("main.out");
 					context->animator.stop("loop_vivo");
@@ -414,7 +414,7 @@ static void naxgc_source_video_tick(void *data, float seconds)
 				context->demo_timer = 0.0;
 			}
 		} else {
-			if (context->demo_timer >= 0.6) {
+			if (context->demo_timer >= 1.2) {
 				if (context->animator.run_action("show").is_err()) {
 					context->animator.play("main.in");
 					context->animator.play("loop_vivo");

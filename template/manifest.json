@@ -52,16 +52,14 @@
 
   "states": {
     "offair": {
-      "layers.linha1.x": -1200,
-      "layers.linha1border.x": -1200,
-      "layers.linha1mask.x": -1200,
-      "layers.linha2.x": -1200,
-      "layers.linha2border.x": -1200,
-      "layers.linha2mask.x": -1200,
+      "layers.linha1.scaleX": 0,
+      "layers.linha1border.scaleX": 0,
+      "layers.linha1mask.scaleX": 0,
+      "layers.linha2.scaleX": 0,
+      "layers.linha2border.scaleX": 0,
+      "layers.linha2mask.scaleX": 0,
       "layers.logo.scale": 0,
-      "layers.tag_aovivo.opacity": 0,
-      "layers.linha1border.opacity": 0,
-      "layers.linha2border.opacity": 0
+      "layers.tag_aovivo.opacity": 0
     },
     "tema_azul": {
       "layers.linha1.fill": "#0b2a5b",
@@ -98,8 +96,8 @@
               { "label": "Vermelho", "apply": "tema_vermelho" }
             ]
           },
-          { "key": "cor_borda", "label": "Cor da borda", "type": "color", "default": "#ffd23f",
-            "bind": ["layers.linha1border.stroke", "layers.linha2border.stroke"] },
+          { "key": "cor_borda", "label": "Cor do rastro", "type": "color", "default": "#ffd23f",
+            "bind": ["layers.linha1border.fill", "layers.linha2border.fill"] },
           { "key": "aovivo", "label": "Tag AO VIVO", "type": "toggle", "default": true, "bind": "layers.tag_aovivo.visible" }
         ]
       },
@@ -117,114 +115,110 @@
     "main.in": {
       "triggers": [
         { "play": "logo.in",   "at": 0.0 },
-        { "play": "linha1.in", "at": 0.1 }
+        { "play": "linha1.in", "at": 0.15 }
       ]
     },
 
     "logo.in": {
       "tracks": [
-        { "layer": "logo", "prop": "scale", "from": 0, "to": 1, "dur": 0.45, "ease": "outBack" },
-        { "layer": "tag_aovivo", "prop": "opacity", "from": 0, "to": 1, "start": 0.3, "dur": 0.25 }
+        { "layer": "logo", "prop": "scale", "from": 0, "to": 1, "dur": 0.65, "ease": "outBack" },
+        { "layer": "tag_aovivo", "prop": "opacity", "from": 0, "to": 1, "start": 0.35, "dur": 0.3 }
       ]
     },
 
     "linha1.in": {
       "tracks": [
-        { "layer": "linha1", "prop": "x", "from": -1200, "to": 0, "dur": 0.6, "ease": "outCubic" }
+        { "layer": "linha1", "prop": "scaleX", "from": 0, "to": 1, "start": 0.08, "dur": 0.8, "ease": "outCubic" }
       ],
       "triggers": [
         { "play": "linha1border.in", "at": 0.0,  "mode": "linked" },
-        { "play": "linha1mask.in",   "at": 0.15, "mode": "linked" },
-        { "play": "linha2.in",       "at": 0.2,  "mode": "linked" }
+        { "play": "linha1mask.in",   "at": 0.08, "mode": "linked" },
+        { "play": "linha2.in",       "at": 0.25, "mode": "linked" }
       ]
     },
     "linha1border.in": {
       "tracks": [
-        { "layer": "linha1border", "prop": "x", "from": -1200, "to": 0, "dur": 0.6, "ease": "outCubic" },
-        { "layer": "linha1border", "prop": "opacity", "from": 0, "to": 1, "dur": 0.2 }
+        { "layer": "linha1border", "prop": "scaleX", "from": 0, "to": 1, "dur": 0.8, "ease": "outCubic" }
       ]
     },
     "linha1mask.in": {
       "tracks": [
-        { "layer": "linha1mask", "prop": "x", "from": -1200, "to": 0, "dur": 0.6, "ease": "outCubic" }
+        { "layer": "linha1mask", "prop": "scaleX", "from": 0, "to": 1, "dur": 0.8, "ease": "outCubic" }
       ]
     },
 
     "linha2.in": {
       "tracks": [
-        { "layer": "linha2", "prop": "x", "from": -1200, "to": 0, "dur": 0.55, "ease": "outCubic" }
+        { "layer": "linha2", "prop": "scaleX", "from": 0, "to": 1, "start": 0.08, "dur": 0.75, "ease": "outCubic" }
       ],
       "triggers": [
         { "play": "linha2border.in", "at": 0.0,  "mode": "linked" },
-        { "play": "linha2mask.in",   "at": 0.15, "mode": "linked" }
+        { "play": "linha2mask.in",   "at": 0.08, "mode": "linked" }
       ]
     },
     "linha2border.in": {
       "tracks": [
-        { "layer": "linha2border", "prop": "x", "from": -1200, "to": 0, "dur": 0.55, "ease": "outCubic" },
-        { "layer": "linha2border", "prop": "opacity", "from": 0, "to": 1, "dur": 0.2 }
+        { "layer": "linha2border", "prop": "scaleX", "from": 0, "to": 1, "dur": 0.75, "ease": "outCubic" }
       ]
     },
     "linha2mask.in": {
       "tracks": [
-        { "layer": "linha2mask", "prop": "x", "from": -1200, "to": 0, "dur": 0.55, "ease": "outCubic" }
+        { "layer": "linha2mask", "prop": "scaleX", "from": 0, "to": 1, "dur": 0.75, "ease": "outCubic" }
       ]
     },
 
     "main.out": {
       "triggers": [
         { "play": "linha2.out", "at": 0.0 },
-        { "play": "linha1.out", "at": 0.1 },
-        { "play": "logo.out",   "at": 0.2 }
+        { "play": "linha1.out", "at": 0.15 },
+        { "play": "logo.out",   "at": 0.25 }
       ]
     },
 
     "linha1.out": {
       "tracks": [
-        { "layer": "linha1", "prop": "x", "to": -1200, "dur": 0.5, "ease": "inCubic" }
+        { "layer": "linha1", "prop": "scaleX", "to": 0, "dur": 0.65, "ease": "inCubic" }
       ],
       "triggers": [
-        { "play": "linha1border.out", "at": 0.0, "mode": "linked" },
-        { "play": "linha1mask.out",   "at": 0.0, "mode": "linked" }
+        { "play": "linha1mask.out",   "at": 0.0,  "mode": "linked" },
+        { "play": "linha1border.out", "at": 0.08, "mode": "linked" }
       ]
     },
     "linha1border.out": {
       "tracks": [
-        { "layer": "linha1border", "prop": "x", "to": -1200, "dur": 0.5, "ease": "inCubic" },
-        { "layer": "linha1border", "prop": "opacity", "to": 0, "dur": 0.5, "ease": "inCubic" }
+        { "layer": "linha1border", "prop": "scaleX", "to": 0, "dur": 0.65, "ease": "inCubic" }
       ]
     },
     "linha1mask.out": {
       "tracks": [
-        { "layer": "linha1mask", "prop": "x", "to": -1200, "dur": 0.4, "ease": "inCubic" }
+        { "layer": "linha1mask", "prop": "scaleX", "to": 0, "dur": 0.65, "ease": "inCubic" }
       ]
     },
 
     "linha2.out": {
       "tracks": [
-        { "layer": "linha2", "prop": "x", "to": -1200, "dur": 0.45, "ease": "inCubic" }
+        { "layer": "linha2", "prop": "scaleX", "to": 0, "dur": 0.6, "ease": "inCubic" }
       ],
       "triggers": [
-        { "play": "linha2border.out", "at": 0.0, "mode": "linked" },
-        { "play": "linha2mask.out",   "at": 0.0, "mode": "linked" }
+        { "play": "linha2mask.out",   "at": 0.0,  "mode": "linked" },
+        { "play": "linha2border.out", "at": 0.08, "mode": "linked" }
       ]
     },
     "linha2border.out": {
       "tracks": [
-        { "layer": "linha2border", "prop": "x", "to": -1200, "dur": 0.45, "ease": "inCubic" },
-        { "layer": "linha2border", "prop": "opacity", "to": 0, "dur": 0.45, "ease": "inCubic" }
+        { "layer": "linha2border", "prop": "scaleX", "to": 0, "dur": 0.6, "ease": "inCubic" }
       ]
     },
     "linha2mask.out": {
       "tracks": [
-        { "layer": "linha2mask", "prop": "x", "to": -1200, "dur": 0.35, "ease": "inCubic" }
+        { "layer": "linha2mask", "prop": "scaleX", "to": 0, "dur": 0.6, "ease": "inCubic" }
       ]
     },
 
     "logo.out": {
       "tracks": [
-        { "layer": "logo", "prop": "scale", "to": 0, "dur": 0.3, "ease": "inBack" },
-        { "layer": "tag_aovivo", "prop": "opacity", "to": 0, "dur": 0.2 }
+        { "layer": "logo", "prop": "scale", "to": 0, "dur": 0.45, "ease": "inBack" },
+        { "layer": "tag_aovivo", "prop": "opacity", "to": 0, "dur": 0.3 }
       ]
     },
 
@@ -240,11 +234,11 @@
   "actions": {
     "show": [
       { "play": "main.in" },
-      { "play": "loop_vivo", "delay": 0.8 }
+      { "play": "loop_vivo", "delay": 1.2 }
     ],
     "hide": [
       { "play": "main.out" },
-      { "stop": "loop_vivo", "delay": 0.9 }
+      { "stop": "loop_vivo", "delay": 1.0 }
     ]
   }
 }

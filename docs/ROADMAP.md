@@ -63,11 +63,12 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 
 ## M5 - Máscaras
 
-- [ ] `gs_texrender` para layer mascarada e para a máscara
-- [ ] Effect (`.effect`) de composição (`alpha` e `inverse`)
-- [ ] Pool de texrender para evitar alocação por quadro
+- [x] `gs_texrender` para layer mascarada e para a máscara
+- [x] Effect (`.effect`) de composição (`alpha` e `inverse`)
+- [x] Pool de texrender para evitar alocação por quadro
 
 **Aceite:** texto do template é revelado pela máscara; sem custo perceptível em frame time.
+**Status:** Aceito.
 
 ## M6 - Painel de controle (dock Qt)
 

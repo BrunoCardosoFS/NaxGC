@@ -14,14 +14,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
 
   <!-- ===== Linha 1 (nome) ===== -->
+  <rect id="linha1border" x="260" y="820" width="1100" height="84" fill="#ffd23f"/>
   <rect id="linha1" x="260" y="820" width="1100" height="84" fill="#0b2a5b"/>
   <rect id="txt_linha1" x="292" y="820" width="1036" height="84" fill="none"/>
-  <rect id="linha1border" x="260" y="820" width="1100" height="84" fill="none" stroke="#ffd23f" stroke-width="4"/>
 
   <!-- ===== Linha 2 (cargo / descrição) ===== -->
+  <rect id="linha2border" x="260" y="904" width="900" height="56" fill="#ffd23f"/>
   <rect id="linha2" x="260" y="904" width="900" height="56" fill="#ffffff"/>
   <rect id="txt_linha2" x="292" y="904" width="836" height="56" fill="none"/>
-  <rect id="linha2border" x="260" y="904" width="900" height="56" fill="none" stroke="#ffd23f" stroke-width="4"/>
 
   <!-- ===== Logo ===== -->
   <g id="logo">

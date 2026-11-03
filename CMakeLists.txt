@@ -105,6 +105,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp src/obs/naxgc_s
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/rasterizer_svg.hpp src/render/rasterizer_svg.cpp)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/rasterizer_text.hpp src/render/rasterizer_text.cpp)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/texture_cache.hpp src/render/texture_cache.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/texrender_pool.hpp src/render/texrender_pool.cpp)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/render/renderer.hpp src/render/renderer.cpp)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
@@ -131,12 +132,13 @@ if(NAXGC_BUILD_TESTS)
     tests/core/easing_test.cpp
     tests/core/animator_test.cpp
     tests/core/golden_test.cpp
+    tests/core/mask_test.cpp
   )
   target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_svg.hpp src/render/rasterizer_svg.cpp)
   target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_text.hpp src/render/rasterizer_text.cpp)
   target_include_directories(naxgc_core_tests PRIVATE src)
   target_include_directories(naxgc_core_tests SYSTEM PRIVATE ${doctest_SOURCE_DIR})
-  target_link_libraries(naxgc_core_tests PRIVATE naxgc_core lunasvg Qt6::Core Qt6::Gui)
+  target_link_libraries(naxgc_core_tests PRIVATE naxgc_core nlohmann_json::nlohmann_json lunasvg Qt6::Core Qt6::Gui)
   target_compile_definitions(naxgc_core_tests PRIVATE NAXGC_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   add_test(NAME naxgc_core_tests COMMAND naxgc_core_tests)

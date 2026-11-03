@@ -48,8 +48,8 @@ TEST_CASE("scene_orders_layers_by_svg_z_order_and_resolves_hierarchy")
 	REQUIRE(scene.layers().size() == 12);
 
 	const std::vector<std::string> expected_z_order = {
-		"linha1", "linha1texto", "linha1border",   "linha2",         "linha2texto", "linha2border",
-		"logo",   "tag_aovivo",  "tag_aovivo_dot", "tag_aovivo_txt", "linha1mask",  "linha2mask",
+		"linha1border", "linha1",     "linha1texto",    "linha2border",   "linha2",     "linha2texto",
+		"logo",         "tag_aovivo", "tag_aovivo_dot", "tag_aovivo_txt", "linha1mask", "linha2mask",
 	};
 
 	for (std::size_t i = 0; i < expected_z_order.size(); ++i) {
@@ -224,16 +224,16 @@ TEST_CASE("scene_applies_named_states_and_animated_overrides")
 	REQUIRE(res.is_ok());
 
 	naxgc::Scene scene = naxgc::Scene::from_template(*res.loaded, true);
-	// initialState is "offair", so linha1.x base is -1200
-	CHECK(scene.find_layer("linha1")->props.x.effective() == doctest::Approx(-1200.0));
+	// initialState is "offair", so linha1.scaleX base is 0.0
+	CHECK(scene.find_layer("linha1")->props.scale_x.effective() == doctest::Approx(0.0));
 
 	// Animated override takes precedence over base
-	REQUIRE(scene.set_layer_property_animated("linha1", "x", -300.0).is_ok());
-	CHECK(scene.find_layer("linha1")->props.x.effective() == doctest::Approx(-300.0));
+	REQUIRE(scene.set_layer_property_animated("linha1", "scaleX", 0.5).is_ok());
+	CHECK(scene.find_layer("linha1")->props.scale_x.effective() == doctest::Approx(0.5));
 
-	// Clearing animated override reverts to base (-1200)
-	REQUIRE(scene.clear_layer_property_animated("linha1", "x").is_ok());
-	CHECK(scene.find_layer("linha1")->props.x.effective() == doctest::Approx(-1200.0));
+	// Clearing animated override reverts to base (0.0)
+	REQUIRE(scene.clear_layer_property_animated("linha1", "scaleX").is_ok());
+	CHECK(scene.find_layer("linha1")->props.scale_x.effective() == doctest::Approx(0.0));
 
 	// Applying "tema_vermelho" changes linha1.fill to #b00020
 	REQUIRE(scene.apply_state("tema_vermelho").is_ok());

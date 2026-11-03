@@ -28,6 +28,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include "core/scene/scene.hpp"
 #include "render/rasterizer_svg.hpp"
 #include "render/rasterizer_text.hpp"
+#include "render/texrender_pool.hpp"
 #include "render/texture_cache.hpp"
 
 namespace naxgc {
@@ -74,14 +75,20 @@ public:
 
 private:
 	bool ensure_effect_in_graphics();
+	bool ensure_mask_effect_in_graphics();
 	void draw_slot_with_matrix(const LayerTextureSlot &slot, const Mat2D &canvas_to_output,
 				   const Mat2D &world_matrix, double opacity, bool linear_srgb);
+	void draw_masked_layer(std::size_t layer_index, uint32_t output_width, uint32_t output_height,
+			       const Mat2D &canvas_to_output, bool linear_srgb);
+	void draw_mask_composite(gs_texture_t *layer_tex, gs_texture_t *mask_tex, uint32_t width, uint32_t height,
+				 MaskMode mode, bool linear_srgb);
 
 	std::shared_ptr<const LoadedTemplate> active_template_;
 	Scene scene_;
 	SvgRasterizer svg_rasterizer_;
 	TextRasterizer text_rasterizer_;
 	TextureCache texture_cache_;
+	TexrenderPool texrender_pool_;
 
 	bool implicit_bg_dirty_{false};
 	double last_canvas_scale_x_{1.0};
@@ -90,6 +97,10 @@ private:
 	gs_effect_t *layer_effect_{nullptr};
 	gs_eparam_t *image_param_{nullptr};
 	gs_eparam_t *opacity_param_{nullptr};
+
+	gs_effect_t *mask_effect_{nullptr};
+	gs_eparam_t *mask_image_param_{nullptr};
+	gs_eparam_t *mask_target_param_{nullptr};
 };
 
 } // namespace naxgc

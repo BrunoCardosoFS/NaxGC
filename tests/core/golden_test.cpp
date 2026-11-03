@@ -69,8 +69,10 @@ TEST_SUITE("core::anim::golden")
 		animator.set_target(&tpl.manifest, &scene, true);
 
 		// 1. Validate initial state ('offair')
-		CHECK(get_prop_double(scene, "linha1", "x") == doctest::Approx(-1200.0));
-		CHECK(get_prop_double(scene, "linha2", "x") == doctest::Approx(-1200.0));
+		CHECK(get_prop_double(scene, "linha1", "scaleX") == doctest::Approx(0.0));
+		CHECK(get_prop_double(scene, "linha2", "scaleX") == doctest::Approx(0.0));
+		CHECK(get_prop_double(scene, "linha1mask", "scaleX") == doctest::Approx(0.0));
+		CHECK(get_prop_double(scene, "linha2mask", "scaleX") == doctest::Approx(0.0));
 		CHECK(get_prop_double(scene, "logo", "scale") == doctest::Approx(0.0));
 		CHECK(get_prop_double(scene, "tag_aovivo", "opacity") == doctest::Approx(0.0));
 
@@ -83,11 +85,13 @@ TEST_SUITE("core::anim::golden")
 		// Tick through 120 frames (2.0 seconds)
 		struct FrameSnapshot {
 			int frame{0};
-			double linha1_x{0.0};
-			double linha2_x{0.0};
+			double linha1_scale_x{0.0};
+			double linha1mask_scale_x{0.0};
+			double linha1border_scale_x{0.0};
+			double linha2_scale_x{0.0};
+			double linha2mask_scale_x{0.0};
 			double logo_scale{0.0};
 			double tag_opacity{0.0};
-			double border1_opacity{0.0};
 		};
 
 		std::vector<FrameSnapshot> snapshots;
@@ -101,35 +105,50 @@ TEST_SUITE("core::anim::golden")
 			    frame == 120) {
 				snapshots.push_back(FrameSnapshot{
 					frame,
-					get_prop_double(scene, "linha1", "x"),
-					get_prop_double(scene, "linha2", "x"),
+					get_prop_double(scene, "linha1", "scaleX"),
+					get_prop_double(scene, "linha1mask", "scaleX"),
+					get_prop_double(scene, "linha1border", "scaleX"),
+					get_prop_double(scene, "linha2", "scaleX"),
+					get_prop_double(scene, "linha2mask", "scaleX"),
 					get_prop_double(scene, "logo", "scale"),
 					get_prop_double(scene, "tag_aovivo", "opacity"),
-					get_prop_double(scene, "linha1border", "opacity"),
 				});
 			}
 		}
 
 		// Verify key choreography milestones of main.in:
 		// Frame 0: still at offair start
-		CHECK(snapshots[0].linha1_x == doctest::Approx(-1200.0));
+		CHECK(snapshots[0].linha1_scale_x == doctest::Approx(0.0));
+		CHECK(snapshots[0].linha1mask_scale_x == doctest::Approx(0.0));
+		CHECK(snapshots[0].linha1border_scale_x == doctest::Approx(0.0));
 		CHECK(snapshots[0].logo_scale == doctest::Approx(0.0));
 
-		// Frame 15 (~0.25s): logo is animating with outBack (reaches > 0.8), linha1 is moving
+		// Frame 15 (~0.25s): logo is animating with outBack (reaches > 0.8), border leads as a trail, linha1 and its mask expand in lockstep
 		CHECK(snapshots[1].logo_scale > 0.7);
-		CHECK(snapshots[1].linha1_x > -1200.0);
+		CHECK(snapshots[1].linha1border_scale_x > snapshots[1].linha1_scale_x);
+		CHECK(snapshots[1].linha1_scale_x == doctest::Approx(snapshots[1].linha1mask_scale_x).epsilon(1e-2));
 
-		// Frame 30 (~0.5s): logo has reached overshoot (~1.0), linha1 is close to 0, linha2 is moving
+		// Frame 30 (~0.5s): logo has reached overshoot (~1.0), linha1 width is close to 1, linha2 and its mask expand in lockstep
 		CHECK(snapshots[2].logo_scale > 0.95);
-		CHECK(snapshots[2].linha1_x > -300.0);
-		CHECK(snapshots[2].linha2_x > -1200.0);
+		CHECK(snapshots[2].linha1_scale_x > 0.7);
+		CHECK(snapshots[2].linha1_scale_x == doctest::Approx(snapshots[2].linha1mask_scale_x).epsilon(1e-2));
+		CHECK(snapshots[2].linha2_scale_x > 0.0);
+		CHECK(snapshots[2].linha2_scale_x == doctest::Approx(snapshots[2].linha2mask_scale_x).epsilon(1e-2));
 
-		// Frame 60 (1.0s): main.in has fully settled at rest position (0) and border is kept visible
-		CHECK(snapshots[4].linha1_x == doctest::Approx(0.0).epsilon(1e-2));
-		CHECK(snapshots[4].linha2_x == doctest::Approx(0.0).epsilon(1e-2));
+		// Frame 60 (1.0s): linha1 and logo have settled, linha2 is in final expansion stage
+		CHECK(snapshots[4].linha1_scale_x > 0.95);
+		CHECK(snapshots[4].linha1mask_scale_x > 0.95);
+		CHECK(snapshots[4].linha2_scale_x > 0.95);
 		CHECK(snapshots[4].logo_scale == doctest::Approx(1.0).epsilon(1e-2));
-		CHECK(snapshots[4].tag_opacity == doctest::Approx(1.0).epsilon(1e-2));
-		CHECK(snapshots[4].border1_opacity == doctest::Approx(1.0).epsilon(1e-2));
+
+		// Frame 90 (1.5s): main.in has fully settled at rest position (scaleX = 1)
+		CHECK(snapshots[5].linha1_scale_x == doctest::Approx(1.0).epsilon(1e-2));
+		CHECK(snapshots[5].linha1mask_scale_x == doctest::Approx(1.0).epsilon(1e-2));
+		CHECK(snapshots[5].linha1border_scale_x == doctest::Approx(1.0).epsilon(1e-2));
+		CHECK(snapshots[5].linha2_scale_x == doctest::Approx(1.0).epsilon(1e-2));
+		CHECK(snapshots[5].linha2mask_scale_x == doctest::Approx(1.0).epsilon(1e-2));
+		CHECK(snapshots[5].logo_scale == doctest::Approx(1.0).epsilon(1e-2));
+		CHECK(snapshots[5].tag_opacity == doctest::Approx(1.0).epsilon(1e-2));
 
 		// Frame 90 and 120: loop_vivo is active (tag_aovivo_dot opacity is pulsing)
 		CHECK(animator.is_clip_active("loop_vivo"));
@@ -139,14 +158,16 @@ TEST_SUITE("core::anim::golden")
 		REQUIRE(animator.run_action("hide").is_ok());
 		CHECK(animator.is_clip_active("main.out"));
 
-		// Tick through 60 frames (1.0 second) of out animation
-		for (int frame = 1; frame <= 60; ++frame) {
+		// Tick through 70 frames (~1.17 seconds) of out animation
+		for (int frame = 1; frame <= 70; ++frame) {
 			animator.tick(dt_60fps);
 		}
 
-		// At the end of hide, all elements are back to offair positions
-		CHECK(get_prop_double(scene, "linha1", "x") == doctest::Approx(-1200.0).epsilon(1e-2));
-		CHECK(get_prop_double(scene, "linha2", "x") == doctest::Approx(-1200.0).epsilon(1e-2));
+		// At the end of hide, all elements are back to offair positions (scaleX = 0)
+		CHECK(get_prop_double(scene, "linha1", "scaleX") == doctest::Approx(0.0).epsilon(1e-2));
+		CHECK(get_prop_double(scene, "linha2", "scaleX") == doctest::Approx(0.0).epsilon(1e-2));
+		CHECK(get_prop_double(scene, "linha1mask", "scaleX") == doctest::Approx(0.0).epsilon(1e-2));
+		CHECK(get_prop_double(scene, "linha2mask", "scaleX") == doctest::Approx(0.0).epsilon(1e-2));
 		CHECK(get_prop_double(scene, "logo", "scale") == doctest::Approx(0.0).epsilon(1e-2));
 		CHECK(get_prop_double(scene, "tag_aovivo", "opacity") == doctest::Approx(0.0).epsilon(1e-2));
 		CHECK(!animator.is_clip_active("loop_vivo"));

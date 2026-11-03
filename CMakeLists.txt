@@ -104,7 +104,13 @@ if(NAXGC_BUILD_TESTS)
   FetchContent_MakeAvailable(doctest)
   # gersemi: on
 
-  add_executable(naxgc_core_tests tests/core/manifest_test.cpp tests/core/scene_test.cpp tests/core/rasterizer_test.cpp)
+  add_executable(
+    naxgc_core_tests
+    tests/test_main.cpp
+    tests/core/manifest_test.cpp
+    tests/core/scene_test.cpp
+    tests/core/rasterizer_test.cpp
+  )
   target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_svg.hpp src/render/rasterizer_svg.cpp)
   target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_text.hpp src/render/rasterizer_text.cpp)
   target_include_directories(naxgc_core_tests PRIVATE src)

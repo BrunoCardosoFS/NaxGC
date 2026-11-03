@@ -36,22 +36,6 @@ std::filesystem::path source_root()
 	return std::filesystem::u8path(NAXGC_SOURCE_DIR);
 }
 
-void ensure_qt_gui_app()
-{
-	if (QGuiApplication::instance() != nullptr) {
-		return;
-	}
-#if defined(__linux__)
-	if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
-		qputenv("QT_QPA_PLATFORM", "offscreen");
-	}
-#endif
-	static int argc = 1;
-	static char arg0[] = "naxgc_core_tests";
-	static char *argv[] = {arg0, nullptr};
-	static QGuiApplication app(argc, argv);
-}
-
 struct BgraPixel {
 	uint8_t b{0};
 	uint8_t g{0};
@@ -191,8 +175,6 @@ TEST_CASE("svg_rasterizer_computes_bboxes_and_rasterizes_template_layers_in_1080
 
 TEST_CASE("text_rasterizer_renders_package_font_and_overflow_modes")
 {
-	ensure_qt_gui_app();
-
 	const std::filesystem::path tpl_dir = source_root() / "template";
 	const naxgc::TemplateLoadResult res = naxgc::load_template_package(tpl_dir);
 	REQUIRE(res.is_ok());

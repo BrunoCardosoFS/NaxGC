@@ -143,7 +143,9 @@ jobs:
           codesignIdent: ${{ steps.codesign.outputs.codesignIdent }}
 
       - name: Run Unit Tests 🧪
-        run: ctest --preset macos-ci --output-on-failure
+        run: |
+          cmake --build build_macos --target naxgc_core_tests --config ${{ needs.check-event.outputs.config }}
+          ctest --test-dir build_macos --build-config ${{ needs.check-event.outputs.config }} --output-on-failure
 
       - name: Package Plugin 📀
         uses: ./.github/actions/package-plugin
@@ -221,7 +223,7 @@ jobs:
           config: ${{ needs.check-event.outputs.config }}
 
       - name: Run Unit Tests 🧪
-        run: ctest --preset ubuntu-ci-x86_64 --output-on-failure
+        run: ctest --test-dir build_x86_64 --build-config ${{ needs.check-event.outputs.config }} --output-on-failure
 
       - name: Package Plugin 📀
         uses: ./.github/actions/package-plugin
@@ -290,7 +292,7 @@ jobs:
           config: ${{ needs.check-event.outputs.config }}
 
       - name: Run Unit Tests 🧪
-        run: ctest --preset windows-ci-x64 --output-on-failure
+        run: ctest --test-dir build_x64 --build-config ${{ needs.check-event.outputs.config }} --output-on-failure
 
       - name: Package Plugin 📀
         uses: ./.github/actions/package-plugin

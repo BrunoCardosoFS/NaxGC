@@ -15,6 +15,7 @@ include(FetchContent)
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
+# gersemi: off
 FetchContent_Declare(
   nlohmann_json
   URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
@@ -22,8 +23,10 @@ FetchContent_Declare(
   SYSTEM
 )
 FetchContent_MakeAvailable(nlohmann_json)
+# gersemi: on
 
 add_library(naxgc_core STATIC)
+set_property(TARGET naxgc_core PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_sources(naxgc_core PRIVATE src/core/util/result.hpp src/core/util/color.hpp src/core/util/color.cpp)
 target_sources(naxgc_core PRIVATE src/core/util/safe_path.hpp src/core/util/safe_path.cpp)
 target_sources(naxgc_core PRIVATE src/core/manifest/manifest_types.hpp src/core/manifest/svg_inspector.hpp)
@@ -65,6 +68,7 @@ set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_nam
 
 if(NAXGC_BUILD_TESTS)
   enable_testing()
+  # gersemi: off
   FetchContent_Declare(
     doctest
     URL https://github.com/doctest/doctest/archive/refs/tags/v2.4.11.tar.gz
@@ -73,6 +77,7 @@ if(NAXGC_BUILD_TESTS)
     SYSTEM
   )
   FetchContent_MakeAvailable(doctest)
+  # gersemi: on
 
   add_executable(naxgc_core_tests tests/core/manifest_test.cpp)
   target_include_directories(naxgc_core_tests SYSTEM PRIVATE ${doctest_SOURCE_DIR})

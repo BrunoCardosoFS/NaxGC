@@ -141,7 +141,7 @@
     "linha1border.in": {
       "tracks": [
         { "layer": "linha1border", "prop": "x", "from": -1200, "to": 0, "dur": 0.6, "ease": "outCubic" },
-        { "layer": "linha1border", "prop": "opacity", "keys": [[0, 0], [0.1, 1], [0.5, 1], [0.7, 0]] }
+        { "layer": "linha1border", "prop": "opacity", "from": 0, "to": 1, "dur": 0.2 }
       ]
     },
     "linha1mask.in": {
@@ -162,7 +162,7 @@
     "linha2border.in": {
       "tracks": [
         { "layer": "linha2border", "prop": "x", "from": -1200, "to": 0, "dur": 0.55, "ease": "outCubic" },
-        { "layer": "linha2border", "prop": "opacity", "keys": [[0, 0], [0.1, 1], [0.45, 1], [0.65, 0]] }
+        { "layer": "linha2border", "prop": "opacity", "from": 0, "to": 1, "dur": 0.2 }
       ]
     },
     "linha2mask.in": {
@@ -191,7 +191,7 @@
     "linha1border.out": {
       "tracks": [
         { "layer": "linha1border", "prop": "x", "to": -1200, "dur": 0.5, "ease": "inCubic" },
-        { "layer": "linha1border", "prop": "opacity", "keys": [[0, 0], [0.05, 1], [0.4, 1], [0.5, 0]] }
+        { "layer": "linha1border", "prop": "opacity", "to": 0, "dur": 0.5, "ease": "inCubic" }
       ]
     },
     "linha1mask.out": {
@@ -212,7 +212,7 @@
     "linha2border.out": {
       "tracks": [
         { "layer": "linha2border", "prop": "x", "to": -1200, "dur": 0.45, "ease": "inCubic" },
-        { "layer": "linha2border", "prop": "opacity", "keys": [[0, 0], [0.05, 1], [0.35, 1], [0.45, 0]] }
+        { "layer": "linha2border", "prop": "opacity", "to": 0, "dur": 0.45, "ease": "inCubic" }
       ]
     },
     "linha2mask.out": {

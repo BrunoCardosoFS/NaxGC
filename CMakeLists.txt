@@ -11,6 +11,18 @@ option(NAXGC_BUILD_TESTS "Build NaxGC core unit tests" ON)
 include(compilerconfig)
 include(defaults)
 include(helpers)
+
+if(MSVC)
+  if(POLICY CMP0141)
+    cmake_policy(SET CMP0141 NEW)
+  endif()
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "Embedded")
+  string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+  string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+  string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+endif()
+
 include(FetchContent)
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
@@ -54,6 +66,12 @@ target_sources(naxgc_core PRIVATE src/core/manifest/svg_inspector.cpp src/core/m
 target_sources(naxgc_core PRIVATE src/core/manifest/manifest_parser.cpp src/core/manifest/manifest_validator.hpp)
 target_sources(naxgc_core PRIVATE src/core/manifest/manifest_validator.cpp)
 target_sources(naxgc_core PRIVATE src/core/scene/scene.hpp src/core/scene/scene.cpp)
+target_sources(naxgc_core PRIVATE src/core/anim/easing.hpp src/core/anim/easing.cpp)
+target_sources(naxgc_core PRIVATE src/core/anim/interpolator.hpp src/core/anim/interpolator.cpp)
+target_sources(naxgc_core PRIVATE src/core/anim/track_evaluator.hpp src/core/anim/track_evaluator.cpp)
+target_sources(naxgc_core PRIVATE src/core/anim/clip_instance.hpp src/core/anim/clip_instance.cpp)
+target_sources(naxgc_core PRIVATE src/core/anim/action_scheduler.hpp src/core/anim/action_scheduler.cpp)
+target_sources(naxgc_core PRIVATE src/core/anim/animator.hpp src/core/anim/animator.cpp)
 target_include_directories(naxgc_core PUBLIC src)
 target_link_libraries(naxgc_core PRIVATE nlohmann_json::nlohmann_json)
 
@@ -110,6 +128,9 @@ if(NAXGC_BUILD_TESTS)
     tests/core/manifest_test.cpp
     tests/core/scene_test.cpp
     tests/core/rasterizer_test.cpp
+    tests/core/easing_test.cpp
+    tests/core/animator_test.cpp
+    tests/core/golden_test.cpp
   )
   target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_svg.hpp src/render/rasterizer_svg.cpp)
   target_sources(naxgc_core_tests PRIVATE src/render/rasterizer_text.hpp src/render/rasterizer_text.cpp)

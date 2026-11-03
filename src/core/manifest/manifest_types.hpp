@@ -414,9 +414,12 @@ struct Manifest {
 	std::unordered_map<std::string, LayerDef> layers;
 	std::vector<std::string> layer_declaration_order;
 	std::unordered_map<std::string, StateDef> states;
+	std::vector<std::string> state_declaration_order;
 	std::optional<PanelDef> panel;
 	std::unordered_map<std::string, ClipDef> animations;
+	std::vector<std::string> clip_declaration_order;
 	std::unordered_map<std::string, std::vector<ActionStepDef>> actions;
+	std::vector<std::string> action_declaration_order;
 };
 
 } // namespace naxgc

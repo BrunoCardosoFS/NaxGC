@@ -750,6 +750,7 @@ void parse_states(const json &root, Manifest &manifest, std::vector<Diagnostic> 
 			state.entries.push_back(StateEntryDef{entry_path, p_it.key(), std::move(*val)});
 		}
 
+		manifest.state_declaration_order.push_back(state_name);
 		manifest.states.emplace(state_name, std::move(state));
 	}
 }
@@ -1464,6 +1465,7 @@ void parse_animations(const json &root, Manifest &manifest, std::vector<Diagnost
 			}
 		}
 
+		manifest.clip_declaration_order.push_back(clip_name);
 		manifest.animations.emplace(clip_name, std::move(clip));
 	}
 }
@@ -1544,6 +1546,7 @@ void parse_actions(const json &root, Manifest &manifest, std::vector<Diagnostic>
 			steps.push_back(std::move(step));
 		}
 
+		manifest.action_declaration_order.push_back(act_name);
 		manifest.actions.emplace(act_name, std::move(steps));
 	}
 }

@@ -145,9 +145,9 @@ TEST_CASE("invalid_manifest_fixtures_report_expected_error_codes_and_paths")
 	const std::filesystem::path invalid_dir = source_root() / "tests" / "fixtures" / "manifests" / "invalid";
 
 	struct ExpectedCase {
-		const char *file;
-		const char *code;
-		const char *json_path;
+		std::string file;
+		std::string code;
+		std::string json_path;
 	};
 
 	const ExpectedCase cases[] = {

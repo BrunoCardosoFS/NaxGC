@@ -223,7 +223,8 @@ void validate_triggers_graph(const Manifest &manifest, std::vector<Diagnostic> &
 		return best_child_depth;
 	};
 
-	for (const auto &[clip_name, clip_def] : manifest.animations) {
+	for (const std::string &clip_name : manifest.clip_declaration_order) {
+		const ClipDef &clip_def = manifest.animations.at(clip_name);
 		if (state[clip_name] == 0) {
 			dfs(dfs, clip_name);
 		}
@@ -273,8 +274,7 @@ void validate_actions_graph(const Manifest &manifest, std::vector<Diagnostic> &d
 		state[act_name] = 2;
 	};
 
-	for (const auto &[act_name, steps] : manifest.actions) {
-		(void)steps;
+	for (const std::string &act_name : manifest.action_declaration_order) {
 		if (state[act_name] == 0) {
 			dfs(dfs, act_name);
 		}
@@ -446,7 +446,8 @@ void validate_manifest_package(Manifest &manifest, const std::filesystem::path &
 	}
 
 	// 6. Validate animations (NXG-E020..E025, NXG-E060)
-	for (auto &[clip_name, clip] : manifest.animations) {
+	for (const std::string &clip_name : manifest.clip_declaration_order) {
+		ClipDef &clip = manifest.animations.at(clip_name);
 		if (clip.loop && !clip.duration.has_value()) {
 			add_error(diagnostics, "NXG-E024", clip.json_path + ".loop",
 				  "clip '" + clip_name + "' has loop: true without 'duration'");
@@ -556,8 +557,8 @@ void validate_manifest_package(Manifest &manifest, const std::filesystem::path &
 		}
 	}
 
-	for (auto &[state_name, state_def] : manifest.states) {
-		(void)state_name;
+	for (const std::string &state_name : manifest.state_declaration_order) {
+		StateDef &state_def = manifest.states.at(state_name);
 		for (auto &entry : state_def.entries) {
 			std::string_view layer_name;
 			std::string_view prop_name;
@@ -790,8 +791,8 @@ void validate_manifest_package(Manifest &manifest, const std::filesystem::path &
 	}
 
 	// 9. Validate actions (NXG-E040, NXG-E041)
-	for (const auto &[act_name, steps] : manifest.actions) {
-		(void)act_name;
+	for (const std::string &act_name : manifest.action_declaration_order) {
+		const auto &steps = manifest.actions.at(act_name);
 		for (const auto &step : steps) {
 			if (step.target.empty()) {
 				continue;

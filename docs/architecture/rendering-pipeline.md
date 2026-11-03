@@ -49,7 +49,7 @@ Para cada layer visível, em z-order:
 4. Efeito padrão do OBS (`OBS_EFFECT_DEFAULT`) com `image` = textura e `color` = opacidade; `gs_draw_sprite`.
 5. `gs_matrix_pop()`.
 
-Fonte registrada com a flag adequada para o fluxo de cor do OBS (`OBS_SOURCE_SRGB` quando aplicável — confirmar no M1 e documentar).
+Fonte registrada com `OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_DO_NOT_DUPLICATE | OBS_SOURCE_SRGB`. A flag `OBS_SOURCE_DO_NOT_DUPLICATE` garante que transições de cena e o Modo Estúdio (Preview vs Program) compartilhem a mesma instância viva da fonte por referência, evitando clones paralelos e garantindo sincronia perfeita ao cortar cenas.
 
 ## Máscaras
 

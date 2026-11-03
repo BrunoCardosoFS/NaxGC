@@ -17,9 +17,9 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 
 ## M1 - Fonte nativa e prova de fluidez
 
-- [ ] `obs_source_info` registrada (`naxgc_source`), com `video_tick`/`video_render`
-- [ ] Retângulo animado desenhado com matrizes (`gs_matrix_*`) guiado por `seconds`
-- [ ] Propriedades da fonte: pasta do template, largura/altura e opção para resetar animação ao reexibir (desativada por padrão)
+- [x] `obs_source_info` registrada (`naxgc_source`), com `video_tick`/`video_render`
+- [x] Retângulo animado desenhado com matrizes (`gs_matrix_*`) guiado por `seconds`
+- [x] Propriedades da fonte: pasta do template, largura/altura e opção para resetar animação ao reexibir (desativada por padrão)
 - [x] Decidir e documentar comportamento de tick quando a fonte está oculta (`show`/`hide`)
 
 **Aceite:** animação a 60 fps por 10 min sem *missed/skipped/lagged frames* atribuíveis ao plugin (Estatísticas do OBS).
@@ -96,7 +96,7 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 ## M9 - Release 0.1
 
 - [ ] Empacotamento (zip/instalador por plataforma)
-- [ ] Licença definida
+- [x] Licença definida (GPL v2)
 - [ ] Revisão de segurança do carregamento de templates
 - [ ] Changelog e documentação de instalação
 

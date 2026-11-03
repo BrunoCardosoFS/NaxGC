@@ -19,6 +19,8 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include "naxgc_source.hpp"
 
 #include <cmath>
+#include <exception>
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -26,6 +28,8 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <graphics/matrix4.h>
 #include <graphics/vec4.h>
 #include <obs-module.h>
+
+#include "core/manifest/manifest_validator.hpp"
 
 namespace naxgc {
 
@@ -56,6 +60,46 @@ inline double ease_in_out(double t) noexcept
 	return (t < 0.5) ? (4.0 * t * t * t) : (1.0 - std::pow(-2.0 * t + 2.0, 3.0) / 2.0);
 }
 
+struct StatusSummary {
+	std::string text;
+	enum obs_text_info_type info_type { OBS_TEXT_INFO_NORMAL };
+};
+
+StatusSummary build_status_summary(const TemplateLoadResult &res, const LoadedTemplate *fallback_template)
+{
+	StatusSummary summary;
+	const auto errs = res.errors();
+	const auto warns = res.warnings();
+
+	if (res.is_ok() && res.loaded.has_value()) {
+		const Manifest &m = res.loaded->manifest;
+		summary.text = "Loaded: " + m.meta.name + " (" + m.meta.id + ") — " + std::to_string(m.canvas.width) +
+			       "x" + std::to_string(m.canvas.height) + ", " + std::to_string(m.layers.size()) +
+			       " layer(s), " + std::to_string(m.animations.size()) + " clip(s)";
+		if (warns.empty()) {
+			summary.info_type = OBS_TEXT_INFO_NORMAL;
+		} else {
+			summary.info_type = OBS_TEXT_INFO_WARNING;
+			summary.text += "\nWarnings (" + std::to_string(warns.size()) + "):";
+			for (const auto &w : warns) {
+				summary.text += "\n• " + w.format();
+			}
+		}
+		return summary;
+	}
+
+	summary.info_type = OBS_TEXT_INFO_ERROR;
+	summary.text = "Template validation failed (" + std::to_string(errs.size()) + " error(s)):";
+	for (const auto &e : errs) {
+		summary.text += "\n• " + e.format();
+	}
+	if (fallback_template != nullptr) {
+		summary.text +=
+			"\n(Keeping previously loaded template '" + fallback_template->manifest.meta.name + "')";
+	}
+	return summary;
+}
+
 } // namespace
 
 struct NaxgcSource {
@@ -65,6 +109,10 @@ struct NaxgcSource {
 	uint32_t height{static_cast<uint32_t>(kDefaultHeight)};
 
 	std::string template_path;
+	std::string last_evaluated_path;
+	std::shared_ptr<const LoadedTemplate> active_template;
+	std::string status_text{"No template folder selected."};
+	enum obs_text_info_type status_info_type { OBS_TEXT_INFO_NORMAL };
 	bool reset_on_show{false};
 
 	double anim_time{0.0};
@@ -82,17 +130,72 @@ static const char *naxgc_source_get_name(void *type_data)
 static void naxgc_source_get_defaults(obs_data_t *settings)
 {
 	obs_data_set_default_string(settings, "template_path", "");
+	obs_data_set_default_string(settings, "template_status", "No template folder selected.");
 	obs_data_set_default_int(settings, "width", static_cast<long long>(kDefaultWidth));
 	obs_data_set_default_int(settings, "height", static_cast<long long>(kDefaultHeight));
 	obs_data_set_default_bool(settings, "reset_on_show", false);
 }
 
+static bool on_template_path_modified(void *priv, obs_properties_t *props, obs_property_t *property,
+				      obs_data_t *settings)
+{
+	UNUSED_PARAMETER(property);
+	obs_property_t *status_prop = obs_properties_get(props, "template_status");
+	if (!status_prop || !settings) {
+		return false;
+	}
+
+	auto *context = static_cast<NaxgcSource *>(priv);
+	const char *raw_path = obs_data_get_string(settings, "template_path");
+	const std::string path_str = raw_path ? raw_path : "";
+
+	if (path_str.empty()) {
+		obs_data_set_string(settings, "template_status", "No template folder selected.");
+		obs_property_text_set_info_type(status_prop, OBS_TEXT_INFO_NORMAL);
+		return true;
+	}
+
+	if (context && path_str == context->last_evaluated_path) {
+		obs_data_set_string(settings, "template_status", context->status_text.c_str());
+		obs_property_text_set_info_type(status_prop, context->status_info_type);
+		return true;
+	}
+
+	try {
+		const std::filesystem::path fs_path = std::filesystem::u8path(path_str.begin(), path_str.end());
+		const TemplateLoadResult res = load_template_package(fs_path);
+		const LoadedTemplate *fallback = context ? context->active_template.get() : nullptr;
+		const StatusSummary summary = build_status_summary(res, fallback);
+		obs_data_set_string(settings, "template_status", summary.text.c_str());
+		obs_property_text_set_info_type(status_prop, summary.info_type);
+	} catch (const std::exception &ex) {
+		const std::string msg = std::string("NXG-E003: unexpected error reading template: ") + ex.what();
+		obs_data_set_string(settings, "template_status", msg.c_str());
+		obs_property_text_set_info_type(status_prop, OBS_TEXT_INFO_ERROR);
+	} catch (...) {
+		obs_data_set_string(settings, "template_status", "NXG-E003: unexpected error reading template");
+		obs_property_text_set_info_type(status_prop, OBS_TEXT_INFO_ERROR);
+	}
+
+	return true;
+}
+
 static obs_properties_t *naxgc_source_get_properties(void *data)
 {
-	UNUSED_PARAMETER(data);
+	auto *context = static_cast<NaxgcSource *>(data);
 	obs_properties_t *props = obs_properties_create();
 
-	obs_properties_add_path(props, "template_path", "Template Folder", OBS_PATH_DIRECTORY, nullptr, nullptr);
+	obs_property_t *path_prop = obs_properties_add_path(props, "template_path", "Template Folder",
+							    OBS_PATH_DIRECTORY, nullptr, nullptr);
+	obs_property_set_modified_callback2(path_prop, on_template_path_modified, context);
+
+	obs_property_t *status_prop =
+		obs_properties_add_text(props, "template_status", "Template Status", OBS_TEXT_INFO);
+	obs_property_text_set_info_word_wrap(status_prop, true);
+	if (context) {
+		obs_property_text_set_info_type(status_prop, context->status_info_type);
+	}
+
 	obs_properties_add_int(props, "width", "Width", 100, 7680, 1);
 	obs_properties_add_int(props, "height", "Height", 100, 4320, 1);
 	obs_properties_add_bool(props, "reset_on_show", "Reset animation on show");
@@ -108,7 +211,8 @@ static void naxgc_source_update(void *data, obs_data_t *settings)
 	}
 
 	const char *path = obs_data_get_string(settings, "template_path");
-	context->template_path = path ? path : "";
+	const std::string new_path = path ? path : "";
+	context->template_path = new_path;
 
 	const auto w = static_cast<uint32_t>(obs_data_get_int(settings, "width"));
 	const auto h = static_cast<uint32_t>(obs_data_get_int(settings, "height"));
@@ -116,6 +220,55 @@ static void naxgc_source_update(void *data, obs_data_t *settings)
 	context->height = (h > 0) ? h : static_cast<uint32_t>(kDefaultHeight);
 
 	context->reset_on_show = obs_data_get_bool(settings, "reset_on_show");
+
+	if (new_path.empty()) {
+		context->last_evaluated_path.clear();
+		context->active_template.reset();
+		context->status_text = "No template folder selected.";
+		context->status_info_type = OBS_TEXT_INFO_NORMAL;
+		obs_data_set_string(settings, "template_status", context->status_text.c_str());
+	} else if (new_path != context->last_evaluated_path) {
+		context->last_evaluated_path = new_path;
+		try {
+			const std::filesystem::path fs_path = std::filesystem::u8path(new_path.begin(), new_path.end());
+			TemplateLoadResult res = load_template_package(fs_path);
+
+			for (const auto &diag : res.diagnostics) {
+				if (diag.severity == DiagnosticSeverity::Warning) {
+					blog(LOG_WARNING, "[NaxGC] %s", diag.format().c_str());
+				} else {
+					blog(LOG_ERROR, "[NaxGC] %s", diag.format().c_str());
+				}
+			}
+
+			const StatusSummary summary = build_status_summary(res, context->active_template.get());
+			context->status_text = summary.text;
+			context->status_info_type = summary.info_type;
+			obs_data_set_string(settings, "template_status", context->status_text.c_str());
+
+			if (res.is_ok() && res.loaded.has_value()) {
+				context->active_template = std::make_shared<LoadedTemplate>(std::move(*res.loaded));
+				const Manifest &m = context->active_template->manifest;
+				blog(LOG_INFO,
+				     "[NaxGC] Template loaded: '%s' (id=%s, canvas=%ux%u, layers=%zu, clips=%zu)",
+				     m.meta.name.c_str(), m.meta.id.c_str(), m.canvas.width, m.canvas.height,
+				     m.layers.size(), m.animations.size());
+			} else if (context->active_template) {
+				blog(LOG_WARNING, "[NaxGC] Failed to load new template; keeping active template '%s'",
+				     context->active_template->manifest.meta.id.c_str());
+			}
+		} catch (const std::exception &ex) {
+			blog(LOG_ERROR, "[NaxGC] NXG-E003: unexpected error loading template: %s", ex.what());
+			context->status_text = std::string("NXG-E003: unexpected error loading template: ") + ex.what();
+			context->status_info_type = OBS_TEXT_INFO_ERROR;
+			obs_data_set_string(settings, "template_status", context->status_text.c_str());
+		} catch (...) {
+			blog(LOG_ERROR, "[NaxGC] NXG-E003: unexpected unknown error loading template");
+			context->status_text = "NXG-E003: unexpected unknown error loading template";
+			context->status_info_type = OBS_TEXT_INFO_ERROR;
+			obs_data_set_string(settings, "template_status", context->status_text.c_str());
+		}
+	}
 
 	blog(LOG_INFO, "[NaxGC] Source updated: %ux%u, template='%s', reset_on_show=%s", context->width,
 	     context->height, context->template_path.c_str(), context->reset_on_show ? "true" : "false");

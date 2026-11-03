@@ -26,11 +26,11 @@ Ordem pensada para validar o maior risco primeiro (fluidez a 60 fps) e só depoi
 
 ## M2 - Manifest: carregamento e validação
 
-- [ ] Parser (nlohmann/json) com modelo tipado no `core`
-- [ ] Validação semântica com códigos de erro (ver `manifest/validation.md`)
-- [ ] JSON Schema publicado em `schemas/manifest.schema.json`
-- [ ] Carregamento seguro do pacote (caminhos, limites de tamanho)
-- [ ] Testes com fixtures válidas/inválidas; `template/` valida sem avisos
+- [x] Parser (nlohmann/json) com modelo tipado no `core`
+- [x] Validação semântica com códigos de erro (ver `manifest/validation.md`)
+- [x] JSON Schema publicado em `schemas/manifest.schema.json`
+- [x] Carregamento seguro do pacote (caminhos, limites de tamanho)
+- [x] Testes com fixtures válidas/inválidas; `template/` valida sem avisos
 
 **Aceite:** manifest inválido nunca derruba o OBS; erro legível no log e na UI.
 
